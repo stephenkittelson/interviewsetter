@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECEIVE_BOOT_COMPLETED}, 1);
         }
         JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        System.out.println("scheduling job...");
+
         if (jobScheduler.schedule(new JobInfo.Builder(0, new ComponentName(this, TextingService.class))
                 .setPersisted(true)
 //                .setMinimumLatency(millisToDateTime(ZonedDateTime.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)).withHour(19).withMinute(0).withSecond(0)))
@@ -61,9 +61,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private long millisToDateTime(ZonedDateTime targetTime) {
-        return (targetTime.toEpochSecond() - ZonedDateTime.now().toEpochSecond()) * 1000;
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

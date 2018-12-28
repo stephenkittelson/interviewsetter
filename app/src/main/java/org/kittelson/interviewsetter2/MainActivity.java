@@ -40,17 +40,8 @@ public class MainActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, "android.permission.RECEIVE_BOOT_COMPLETED") == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECEIVE_BOOT_COMPLETED}, 1);
         }
-        JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
 
-        if (jobScheduler.schedule(new JobInfo.Builder(0, new ComponentName(this, TextingService.class))
-                .setPersisted(true)
-//                .setMinimumLatency(millisToDateTime(ZonedDateTime.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)).withHour(19).withMinute(0).withSecond(0)))
-//                .setOverrideDeadline(millisToDateTime(ZonedDateTime.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)).withHour(20).withMinute(20).withSecond(0)))
-                .setMinimumLatency(1000)
-                .setOverrideDeadline(2000)
-                .build()) == JobScheduler.RESULT_FAILURE) {
-            Toast.makeText(this, "job scheduling failed", Toast.LENGTH_LONG).show();
-        }
+        new JobSchedulingManager().scheduleNextTextingJob(this);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

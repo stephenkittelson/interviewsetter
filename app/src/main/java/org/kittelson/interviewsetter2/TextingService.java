@@ -33,6 +33,8 @@ public class TextingService extends JobService {
                 .setAutoCancel(true)
                 .setContentIntent(PendingIntent.getActivity(this, 0, pendingIntent, PendingIntent.FLAG_UPDATE_CURRENT))
                 .build());
+
+        new JobSchedulingManager().scheduleNextTextingJob(this);
         return false;
     }
 

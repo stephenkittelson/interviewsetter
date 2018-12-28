@@ -25,22 +25,6 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.v(CLASS_NAME, "init on boot! Action: " + intent.getAction() + ", URI: " + intent.toUri(Intent.URI_INTENT_SCHEME));
-
-        JobWindow jobWindow = new JobSchedulingManager().getNextJobWindow();
-        jobWindow.setWindowStart(ZonedDateTime.now().plusSeconds(1)); // TODO debugging only
-        jobWindow.setWindowEnd(ZonedDateTime.now().plusSeconds(2)); // TODO debugging only
-        Log.v(CLASS_NAME, "start time: " + DateTimeFormatter.ISO_DATE_TIME.format(jobWindow.getWindowStart())
-                + ", end time: " + DateTimeFormatter.ISO_DATE_TIME.format(jobWindow.getWindowEnd()));
-
-        JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-
-        if (jobScheduler.schedule(new JobInfo.Builder(0, new ComponentName(context, TextingService.class))
-                .setPersisted(true)
-                .setMinimumLatency(jobWindow.getWindowStartMillis())
-                .setOverrideDeadline(jobWindow.getWindowEndMillis())
-                .build()) == JobScheduler.RESULT_FAILURE) {
-            Log.e(CLASS_NAME, "job scheduling failed");
-        }
-        Log.v(CLASS_NAME, "job scheduler setup");
+        new JobSchedulingManager().scheduleNextTextingJob(context);
     }
 }

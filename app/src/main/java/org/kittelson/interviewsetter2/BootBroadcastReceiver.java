@@ -32,14 +32,6 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
         Log.v(CLASS_NAME, "start time: " + DateTimeFormatter.ISO_DATE_TIME.format(jobWindow.getWindowStart())
                 + ", end time: " + DateTimeFormatter.ISO_DATE_TIME.format(jobWindow.getWindowEnd()));
 
-/* this didn't work, wouldn't allow the service to start, jobscheduler works though
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setWindow(AlarmManager.RTC_WAKEUP,
-                jobWindow.getWindowStart().withZoneSameInstant(ZoneOffset.UTC).toEpochSecond() * 1000,
-                jobWindow.getWindowEndMillis() - jobWindow.getWindowStartMillis(),
-                PendingIntent.getService(context, 0, new Intent(context, TextingService.class), PendingIntent.FLAG_UPDATE_CURRENT));
-        Log.v(BootBroadcastReceiver.class.getSimpleName(), "setup alarm manager");
-*/
         JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
 
         if (jobScheduler.schedule(new JobInfo.Builder(0, new ComponentName(context, TextingService.class))

@@ -27,6 +27,13 @@
             android:name=".TextingService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
+        <receiver android:name=".BootBroadcastReceiver" android:exported="true">
+            <intent-filter>
+                <!--<action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />-->
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".SendTexts"
             android:label="@string/title_activity_send_texts"

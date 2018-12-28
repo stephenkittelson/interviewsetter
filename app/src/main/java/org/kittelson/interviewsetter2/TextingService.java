@@ -8,6 +8,7 @@ import android.app.job.JobService;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 public class TextingService extends JobService {
@@ -17,7 +18,7 @@ public class TextingService extends JobService {
     @Override
     public boolean onStartJob(JobParameters params) {
         Toast.makeText(this, "job executing!", Toast.LENGTH_LONG).show();
-        System.out.println("job running!");
+        Log.v("TextingService", "job running!");
         NotificationChannel channel = new NotificationChannel(SEND_TEXTS_NOTIF_CHANNEL, "Send Text messages", NotificationManager.IMPORTANCE_HIGH);
         channel.setDescription("Notifies when it's time to send out text messages to set appointments for the next Sunday.");
         getSystemService(NotificationManager.class).createNotificationChannel(channel);

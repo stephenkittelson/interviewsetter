@@ -11,9 +11,16 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
 public class TextingService extends JobService {
+    private static String CLASS_NAME = TextingService.class.getSimpleName();
 
     private static final String SEND_TEXTS_NOTIF_CHANNEL = "sendTexts";
+
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
     @Override
     public boolean onStartJob(JobParameters params) {
@@ -34,6 +41,7 @@ public class TextingService extends JobService {
                 .setContentIntent(PendingIntent.getActivity(this, 0, pendingIntent, PendingIntent.FLAG_UPDATE_CURRENT))
                 .build());
 
+        Log.v(CLASS_NAME, "last signed in user: " + GoogleSignIn.getLastSignedInAccount(this));
         new JobSchedulingManager().scheduleNextTextingJob(this);
         return false;
     }

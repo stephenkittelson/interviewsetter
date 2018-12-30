@@ -11,6 +11,8 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.time.ZonedDateTime;
+
 public class TextingService extends JobService {
 
     private static final String SEND_TEXTS_NOTIF_CHANNEL = "sendTexts";
@@ -34,7 +36,7 @@ public class TextingService extends JobService {
                 .setContentIntent(PendingIntent.getActivity(this, 0, pendingIntent, PendingIntent.FLAG_UPDATE_CURRENT))
                 .build());
 
-        new JobSchedulingManager().scheduleNextTextingJob(this);
+        new JobSchedulingManager().scheduleNextJobWithOffset(this, ZonedDateTime.now().plusDays(1).withHour(9).withMinute(0));
         return false;
     }
 

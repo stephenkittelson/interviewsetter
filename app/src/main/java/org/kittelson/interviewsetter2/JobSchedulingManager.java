@@ -15,9 +15,11 @@ public class JobSchedulingManager {
     private static String CLASS_NAME = JobSchedulingManager.class.getSimpleName();
 
     public void scheduleNextTextingJob(Context context) {
-        JobWindow jobWindow = new JobSchedulingManager().getNextJobWindow();
-        jobWindow.setWindowStart(ZonedDateTime.now().plusSeconds(1)); // TODO debugging only
-        jobWindow.setWindowEnd(ZonedDateTime.now().plusSeconds(2)); // TODO debugging only
+        scheduleNextJobWithOffset(context, ZonedDateTime.now());
+    }
+
+    public void scheduleNextJobWithOffset(Context context, ZonedDateTime offset) {
+        JobWindow jobWindow = new JobSchedulingManager().getNextJobWindow(offset);
         Log.v(CLASS_NAME, "start time: " + DateTimeFormatter.ISO_DATE_TIME.format(jobWindow.getWindowStart())
                 + ", end time: " + DateTimeFormatter.ISO_DATE_TIME.format(jobWindow.getWindowEnd()));
 
@@ -31,10 +33,6 @@ public class JobSchedulingManager {
             Log.e(CLASS_NAME, "job scheduling failed");
         }
         Log.v(CLASS_NAME, "job scheduler setup");
-    }
-
-    public JobWindow getNextJobWindow() {
-        return getNextJobWindow(ZonedDateTime.now());
     }
 
     public JobWindow getNextJobWindow(ZonedDateTime currentTime) {

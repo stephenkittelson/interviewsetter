@@ -15,6 +15,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
+import java.time.ZonedDateTime;
+
 public class TextingService extends JobService {
     private static String CLASS_NAME = TextingService.class.getSimpleName();
 
@@ -42,7 +44,7 @@ public class TextingService extends JobService {
                 .build());
 
         Log.v(CLASS_NAME, "last signed in user: " + GoogleSignIn.getLastSignedInAccount(this));
-        new JobSchedulingManager().scheduleNextTextingJob(this);
+        new JobSchedulingManager().scheduleNextJobWithOffset(this, ZonedDateTime.now().plusDays(1).withHour(9).withMinute(0));
         return false;
     }
 

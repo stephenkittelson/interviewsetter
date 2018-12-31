@@ -2,16 +2,11 @@ package org.kittelson.interviewsetter2;
 
 import org.junit.Test;
 
-import java.time.DayOfWeek;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.TemporalAdjusters;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-/**
- * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
- */
 public class JobSchedulingManagerTest {
     @Test
     public void monday_tuesday1900() {

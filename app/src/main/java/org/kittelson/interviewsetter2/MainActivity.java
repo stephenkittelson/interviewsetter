@@ -20,10 +20,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.Task;
 
 public class MainActivity extends AppCompatActivity {
     private static String CLASS_NAME = MainActivity.class.getSimpleName();
+
+    private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
 
     private GoogleSignInClient mGoogleSignInClient;
     private static int RC_SIGN_IN = 9001;
@@ -43,9 +46,13 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECEIVE_BOOT_COMPLETED}, 1);
         }
 
+        if (ContextCompat.checkSelfPermission(this, "android.permission.INTERNET") == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, 1);
+        }
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestScopes(new Scope(SPREADSHEETS_SCOPE))
                 .requestEmail()
-                .requestIdToken("TODO")
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
@@ -55,8 +62,13 @@ public class MainActivity extends AppCompatActivity {
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
 
-            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-            startActivityForResult(signInIntent, RC_SIGN_IN);
+            if (GoogleSignIn.getLastSignedInAccount(this) == null) {
+                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+                startActivityForResult(signInIntent, RC_SIGN_IN);
+            } else {
+                Log.v(CLASS_NAME, "already signed in, executing: " + GoogleSignIn.getLastSignedInAccount(this).getDisplayName());
+                new GetScheduleTask(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
+            }
         });
     }
 

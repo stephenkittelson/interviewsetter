@@ -45,6 +45,10 @@ public class TextingService extends JobService {
 
         Log.v(CLASS_NAME, "last signed in user: " + GoogleSignIn.getLastSignedInAccount(this));
         new JobSchedulingManager().scheduleNextJobWithOffset(this, ZonedDateTime.now().plusDays(1).withHour(9).withMinute(0));
+        /*
+         TODO keep executing in window, just don't reactivate the notification if 1) it's already active, 2) no one is pending a text message - all in case
+         someone responded that the day doesn't work for them
+          */
         return false;
     }
 

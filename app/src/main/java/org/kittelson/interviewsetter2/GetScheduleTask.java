@@ -11,11 +11,13 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
+import com.google.api.services.sheets.v4.model.ValueRange;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GetScheduleTask extends AsyncTask<Account, Void, List<String>> {
     private static String CLASS_NAME = GetScheduleTask.class.getSimpleName();
@@ -32,9 +34,12 @@ public class GetScheduleTask extends AsyncTask<Account, Void, List<String>> {
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(context, Collections.singleton(SPREADSHEETS_SCOPE));
         credential.setSelectedAccount(accounts[0]);
         Sheets sheetsService = new Sheets.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), credential).build();
-        Spreadsheet response = null;
+        ValueRange response = null;
         try {
-            response = sheetsService.spreadsheets().get("TODO").setRanges(Arrays.asList("'Upcoming Interviews'!A2:F30")).execute();
+            response = sheetsService.spreadsheets().values().get("TODO", "'Upcoming Interviews'!A2:F30").execute();
+            List<Appointment> appointments = response.getValues().stream().map(rawRow -> new Appointment(rawRow)).collect(Collectors.toList());
+
+            Log.v(CLASS_NAME, "appointments: " + appointments);
         } catch (UserRecoverableAuthIOException ex) {
             context.startActivity(ex.getIntent());
         } catch (IOException e) {

@@ -16,19 +16,17 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.tasks.Task;
 
 public class MainActivity extends AppCompatActivity {
     private static String CLASS_NAME = MainActivity.class.getSimpleName();
 
     private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
 
-    private GoogleSignInClient mGoogleSignInClient;
+    private GoogleSignInClient googleSignInClient;
     private static int RC_SIGN_IN = 9001;
 
     @Override
@@ -54,21 +52,19 @@ public class MainActivity extends AppCompatActivity {
                 .requestScopes(new Scope(SPREADSHEETS_SCOPE))
                 .requestEmail()
                 .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        if (GoogleSignIn.getLastSignedInAccount(this) == null) {
+            startActivityForResult(googleSignInClient.getSignInIntent(), RC_SIGN_IN);
+        } else {
+            new GetScheduleTask(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
+        }
 
         new JobSchedulingManager().scheduleNextTextingJob(this);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener((View view) -> {
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
-
-            if (GoogleSignIn.getLastSignedInAccount(this) == null) {
-                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-                startActivityForResult(signInIntent, RC_SIGN_IN);
-            } else {
-                Log.v(CLASS_NAME, "already signed in, executing: " + GoogleSignIn.getLastSignedInAccount(this).getDisplayName());
-                new GetScheduleTask(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
-            }
         });
     }
 
@@ -77,22 +73,11 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_SIGN_IN) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
-        }
-    }
-
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-
-            // Signed in successfully, show authenticated UI.
-            Log.v(CLASS_NAME, "account: " + account);
-        } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Log.w(CLASS_NAME, "signInResult:failed code=" + e.getStatusCode());
-
+            try {
+                new GetScheduleTask(this).execute(GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class).getAccount());
+            } catch (ApiException e) {
+                Log.w(CLASS_NAME, "signInResult:failed code=" + e.getStatusCode());
+            }
         }
     }
 

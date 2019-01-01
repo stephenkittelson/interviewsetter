@@ -34,12 +34,15 @@ public class GetScheduleTask extends AsyncTask<Account, Void, List<String>> {
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(context, Collections.singleton(SPREADSHEETS_SCOPE));
         credential.setSelectedAccount(accounts[0]);
         Sheets sheetsService = new Sheets.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), credential).build();
-        ValueRange response = null;
+        Spreadsheet response = null;
         try {
-            response = sheetsService.spreadsheets().values().get("TODO", "'Upcoming Interviews'!A2:F30").execute();
-            List<Appointment> appointments = response.getValues().stream().map(rawRow -> new Appointment(rawRow)).collect(Collectors.toList());
+            response = sheetsService.spreadsheets().get("TODO").setRanges(Arrays.asList("'Upcoming Interviews'!A2:F30"))
+                    .setFields("sheets.data.rowData.values.effectiveValue").execute();
+            response.getSheets().stream().forEach(sheet -> sheet.getData().stream().forEach(gridData -> gridData.getRowData().stream().filter(rowData -> rowData.getValues() != null).forEach(rowData -> rowData.getValues().stream().filter(cellData -> cellData.getEffectiveValue() != null).forEach(cellData -> Log.v(CLASS_NAME, "effective number value: " + cellData.getEffectiveValue().getNumberValue() + ", effective string value: " + cellData.getEffectiveValue().getStringValue())))));
+            Log.v(CLASS_NAME, "response: " + response);
+//            List<Appointment> appointments = response.getValues().stream().map(rawRow -> new Appointment(rawRow)).collect(Collectors.toList());
 
-            Log.v(CLASS_NAME, "appointments: " + appointments);
+//            Log.v(CLASS_NAME, "appointments: " + appointments);
         } catch (UserRecoverableAuthIOException ex) {
             context.startActivity(ex.getIntent());
         } catch (IOException e) {

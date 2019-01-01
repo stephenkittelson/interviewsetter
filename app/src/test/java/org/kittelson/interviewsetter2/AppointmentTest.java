@@ -11,12 +11,12 @@ import java.util.Arrays;
 public class AppointmentTest {
     @Test
     public void normalAppointment_parsed() throws Exception {
-        Appointment appt = new Appointment(Arrays.asList("Sunday, Jan 13","12:35 PM","Smith","Doe, John / Curie, Sam","outside the Bishop's office","Initial Contact"));
-        Assert.assertEquals(appt.getLocation(), "outside the Bishop's office");
-        Assert.assertEquals(appt.getStage(), AppointmentStage.InitialContact);
-        Assert.assertEquals(appt.getTime(), LocalDateTime.of(2019, 1, 13, 12, 35, 0, 0));
+        Appointment appt = new Appointment(Arrays.asList(43478.5243055556, "Smith", "Doe, John / Curie, Sam", "outside the Bishop's office", "Initial Contact"));
+        Assert.assertEquals("outside the Bishop's office", appt.getLocation());
+        Assert.assertEquals(AppointmentStage.InitialContact, appt.getStage());
+        Assert.assertEquals(LocalDateTime.of(2019, 1, 13, 12, 35, 0, 0), appt.getTime());
+        Assert.assertEquals(2, appt.getCompanions().size());
         Assert.assertTrue(appt.getCompanions().contains("John Doe"));
         Assert.assertTrue(appt.getCompanions().contains("Sam Curie"));
-        Assert.assertEquals(2, appt.getCompanions().size());
     }
 }

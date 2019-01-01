@@ -24,13 +24,15 @@ public class Appointment {
     }
 
     public Appointment(List<Object> rawAppointment) {
-        this.time = LocalDateTime.parse((String) rawAppointment.get(0) + " " + LocalDateTime.now().getYear() + " " + (String) rawAppointment.get(1), DateTimeFormatter.ofPattern("EEEE, MMM  d h:m a"));
-        this.presidencyMember = (String) rawAppointment.get(2);
+        // coming in as a number, translate using https://developers.google.com/sheets/api/reference/rest/v4/DateTimeRenderOption#ENUM_VALUES.SERIAL_NUMBER
+        Double serialDate = (Double) rawAppointment.get(0);
+        this.time = LocalDateTime.of(1899, 12, 30, 0, 0).plusMinutes(Double.valueOf(serialDate /* days */ * 24.0 /* hr / day */ * 60.0 /* min / hr */).longValue());
+        this.presidencyMember = (String) rawAppointment.get(1);
         if (!presidencyMember.equals("all")) {
-            this.companions = Arrays.stream(((String) rawAppointment.get(3)).split("/")).map(companion -> StringUtils.trim(companion)).collect(Collectors.toList());
+            this.companions = Arrays.stream(((String) rawAppointment.get(2)).split("/")).map(companion -> StringUtils.trim(companion)).collect(Collectors.toList());
         }
-        this.location = (String) rawAppointment.get(4);
-        this.stage = AppointmentStage.valueOf((String) rawAppointment.get(5));
+        this.location = (String) rawAppointment.get(3);
+        this.stage = AppointmentStage.valueOf(StringUtils.deleteWhitespace((String) rawAppointment.get(4)));
     }
 
     public LocalDateTime getTime() {

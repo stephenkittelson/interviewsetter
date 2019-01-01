@@ -36,52 +36,49 @@ public class JobSchedulingManager {
     }
 
     public JobWindow getNextJobWindow(ZonedDateTime currentTime) {
-        ZonedDateTime windowStart = ZonedDateTime.now();
-        ZonedDateTime windowEnd = ZonedDateTime.now();
+        ZonedDateTime windowStart;
+        ZonedDateTime windowEnd;
+        DayOfWeek nextWindowDay = DayOfWeek.TUESDAY;
+        int currentWindowStartHour = 19;
+        int nextWindowStartHour = 19;
+        boolean isWindowToday = true;
         switch (currentTime.getDayOfWeek()) {
             case TUESDAY:
             case WEDNESDAY:
             case THURSDAY:
-                if (currentTime.getHour() > 20 || (currentTime.getHour() == 20 && currentTime.getMinute() >= 20)) {
-                    windowStart = currentTime.plusDays(1).withHour(19).withMinute(0).withSecond(0);
-                    windowEnd = currentTime.plusDays(1).withHour(20).withMinute(20).withSecond(0);
-                } else if (currentTime.getHour() >= 19) {
-                    windowStart = currentTime;
-                    windowEnd = currentTime.withHour(20).withMinute(20).withSecond(0);
-                } else {
-                    windowStart = currentTime.withHour(19).withMinute(0).withSecond(0);
-                    windowEnd = currentTime.withHour(20).withMinute(20).withSecond(0);
-                }
+                isWindowToday = true;
+                nextWindowDay = currentTime.plusDays(1).getDayOfWeek();
+                nextWindowStartHour = 19;
+                currentWindowStartHour = 19;
                 break;
             case FRIDAY:
-                if (currentTime.getHour() > 20 || (currentTime.getHour() == 20 && currentTime.getMinute() >= 20)) {
-                    windowStart = currentTime.plusDays(1).withHour(10).withMinute(0).withSecond(0);
-                    windowEnd = currentTime.plusDays(1).withHour(20).withMinute(20).withSecond(0);
-                } else if (currentTime.getHour() >= 19) {
-                    windowStart = currentTime;
-                    windowEnd = currentTime.withHour(20).withMinute(20).withSecond(0);
-                } else {
-                    windowStart = currentTime.withHour(19).withMinute(0).withSecond(0);
-                    windowEnd = currentTime.withHour(20).withMinute(20).withSecond(0);
-                }
+                isWindowToday = true;
+                nextWindowDay = currentTime.plusDays(1).getDayOfWeek();
+                nextWindowStartHour = 10;
+                currentWindowStartHour = 19;
                 break;
             case SATURDAY:
-                if (currentTime.getHour() > 20 || (currentTime.getHour() == 20 && currentTime.getMinute() >= 20)) {
-                    windowStart = currentTime.with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)).withHour(19).withMinute(0).withSecond(0);
-                    windowEnd = currentTime.with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)).withHour(20).withMinute(20).withSecond(0);
-                } else if (currentTime.getHour() >= 10) {
-                    windowStart = currentTime;
-                    windowEnd = currentTime.withHour(20).withMinute(20).withSecond(0);
-                } else {
-                    windowStart = currentTime.withHour(10).withMinute(0).withSecond(0);
-                    windowEnd = currentTime.withHour(11).withMinute(0).withSecond(0);
-                }
+                isWindowToday = true;
+                nextWindowDay = DayOfWeek.TUESDAY;
+                nextWindowStartHour = 19;
+                currentWindowStartHour = 10;
                 break;
             case MONDAY:
             case SUNDAY:
-                windowStart = currentTime.with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)).withHour(19).withMinute(0).withSecond(0);
-                windowEnd = currentTime.with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)).withHour(20).withMinute(0).withSecond(0);
+                isWindowToday = false;
+                nextWindowDay = DayOfWeek.TUESDAY;
+                nextWindowStartHour = 19;
                 break;
+        }
+        if (!isWindowToday || currentTime.getHour() > 20 || (currentTime.getHour() == 20 && currentTime.getMinute() >= 20)) {
+            windowStart = currentTime.with(TemporalAdjusters.next(nextWindowDay)).withHour(nextWindowStartHour).withMinute(0).withSecond(0);
+            windowEnd = currentTime.with(TemporalAdjusters.next(nextWindowDay)).withHour(20).withMinute(20).withSecond(0);
+        } else if (currentTime.getHour() >= currentWindowStartHour) {
+            windowStart = currentTime;
+            windowEnd = currentTime.withHour(20).withMinute(20).withSecond(0);
+        } else {
+            windowStart = currentTime.withHour(currentWindowStartHour).withMinute(0).withSecond(0);
+            windowEnd = currentTime.withHour(20).withMinute(20).withSecond(0);
         }
         return new JobWindow(windowStart, windowEnd);
     }

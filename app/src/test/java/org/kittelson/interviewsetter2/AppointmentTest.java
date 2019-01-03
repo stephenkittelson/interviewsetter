@@ -2,6 +2,8 @@ package org.kittelson.interviewsetter2;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.kittelson.interviewsetter2.appointments.Appointment;
+import org.kittelson.interviewsetter2.appointments.AppointmentStage;
 
 import java.time.LocalDateTime;
 

@@ -1,4 +1,4 @@
-package org.kittelson.interviewsetter2;
+package org.kittelson.interviewsetter2.appointments;
 
 public enum AppointmentStage {
     InitialContact,

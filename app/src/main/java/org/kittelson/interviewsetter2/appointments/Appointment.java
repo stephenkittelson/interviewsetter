@@ -1,10 +1,8 @@
-package org.kittelson.interviewsetter2;
+package org.kittelson.interviewsetter2.appointments;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -105,6 +103,7 @@ public class Appointment {
                 ", stage=" + stage +
                 ", location='" + location + '\'' +
                 ", presidencyMember='" + presidencyMember + '\'' +
+                ", appointmentType=" + appointmentType +
                 '}';
     }
 }

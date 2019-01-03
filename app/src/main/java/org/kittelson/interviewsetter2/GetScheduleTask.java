@@ -11,7 +11,8 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
-import com.google.api.services.sheets.v4.model.ValueRange;
+
+import org.kittelson.interviewsetter2.appointments.Appointment;
 
 import java.io.IOException;
 import java.time.LocalDateTime;

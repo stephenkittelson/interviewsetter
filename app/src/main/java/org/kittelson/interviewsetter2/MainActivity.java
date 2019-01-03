@@ -9,6 +9,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -22,13 +24,22 @@ import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
 
+import org.kittelson.interviewsetter2.appointments.Appointment;
+import org.kittelson.interviewsetter2.appointments.view.AppointmentAdapter;
+
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
     private static String CLASS_NAME = MainActivity.class.getSimpleName();
 
     private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
+    private static int RC_SIGN_IN = 9001;
 
     private GoogleSignInClient googleSignInClient;
-    private static int RC_SIGN_IN = 9001;
+    private RecyclerView appointmentView;
+    private RecyclerView.Adapter appointmentAdapter;
+    private RecyclerView.LayoutManager appointmentLayoutmanager;
+    private List<Appointment> appointments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +47,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        appointmentView = (RecyclerView) findViewById(R.id.recycler_view);
+        appointmentView.setHasFixedSize(true);
+        appointmentLayoutmanager = new LinearLayoutManager(this);
+        appointmentView.setLayoutManager(appointmentLayoutmanager);
+        appointmentAdapter = new AppointmentAdapter(appointments);
+        appointmentView.setAdapter(appointmentAdapter);
 
         if (ContextCompat.checkSelfPermission(this, "android.permission.SEND_SMS") == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, 1);

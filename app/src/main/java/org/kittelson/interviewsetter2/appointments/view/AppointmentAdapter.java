@@ -9,6 +9,7 @@ import android.widget.TextView;
 import org.apache.commons.lang3.StringUtils;
 import org.kittelson.interviewsetter2.R;
 import org.kittelson.interviewsetter2.appointments.Appointment;
+import org.kittelson.interviewsetter2.appointments.AppointmentType;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
 
     @Override
     public void onBindViewHolder(@NonNull AppointmentViewHolder holder, int position) {
-        holder.textView.setText(StringUtils.join(appointments.get(position).getCompanions(), " / "));
+        holder.textView.setText(StringUtils.join(appointments.get(position).getCompanions(), " / ") + (appointments.get(position).getAppointmentType().equals(AppointmentType.Stewardship) ? " (stewardship)" : ""));
     }
 
     @Override

@@ -43,8 +43,11 @@ public class Appointment {
     }
 
     public Appointment setCompanions(String companions) {
+        if (companions.contains("&")) {
+            companions = StringUtils.substringBefore(StringUtils.strip(companions, "~"), "&");
+        }
         this.companions = Arrays.stream(companions.split("/")).map(companion -> {
-            String[] reversedName = StringUtils.trim(companion).split(",");
+            String[] reversedName = StringUtils.strip(StringUtils.trim(companion), "~").split(",");
             return StringUtils.trim(reversedName[1]) + " " + StringUtils.trim(reversedName[0]);
         }).collect(Collectors.toList());
         return this;

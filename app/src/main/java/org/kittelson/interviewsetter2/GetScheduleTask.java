@@ -18,29 +18,31 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class GetScheduleTask extends AsyncTask<Account, Void, List<String>> {
+public class GetScheduleTask extends AsyncTask<Account, Void, List<Appointment>> {
     private static String CLASS_NAME = GetScheduleTask.class.getSimpleName();
     private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
 
-    private Context context;
+    private MainActivity context;
 
-    public GetScheduleTask(Context context) {
+    public GetScheduleTask(MainActivity context) {
         this.context = context;
     }
 
     @Override
-    protected List<String> doInBackground(Account... accounts) {
+    protected List<Appointment> doInBackground(Account... accounts) {
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(context, Collections.singleton(SPREADSHEETS_SCOPE));
         credential.setSelectedAccount(accounts[0]);
         Sheets sheetsService = new Sheets.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), credential).build();
         Spreadsheet response = null;
+        List<Appointment> appointments = new LinkedList<>();
         try {
             response = sheetsService.spreadsheets().get("TODO").setRanges(Arrays.asList("'Upcoming Interviews'!A2:G30"))
                     .setFields("sheets.data.rowData.values.effectiveValue").execute();
-            List<Appointment> appointments = response.getSheets().stream()
+            appointments = response.getSheets().stream()
                     .flatMap(sheet -> sheet.getData().stream()
                             .flatMap(gridData -> gridData.getRowData().stream()
                                     .filter(rowData -> rowData.getValues() != null && rowData.getValues().size() >= 7)
@@ -66,6 +68,14 @@ public class GetScheduleTask extends AsyncTask<Account, Void, List<String>> {
         } catch (IOException e) {
             Log.e(CLASS_NAME, "failure to get spreadsheet: " + e.getMessage(), e);
         }
-        return null;
+        return appointments;
+    }
+
+    @Override
+    protected void onPostExecute(List<Appointment> appointments) {
+        super.onPostExecute(appointments);
+        if (context != null) {
+            context.reloadAppointments(appointments);
+        }
     }
 }

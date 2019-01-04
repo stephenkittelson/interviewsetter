@@ -27,6 +27,7 @@ import com.google.android.gms.common.api.Scope;
 import org.kittelson.interviewsetter2.appointments.Appointment;
 import org.kittelson.interviewsetter2.appointments.view.AppointmentAdapter;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
     private GoogleSignInClient googleSignInClient;
     private RecyclerView appointmentView;
-    private RecyclerView.Adapter appointmentAdapter;
+    private AppointmentAdapter appointmentAdapter;
     private RecyclerView.LayoutManager appointmentLayoutmanager;
     private List<Appointment> appointments;
 
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         appointmentView.setHasFixedSize(true);
         appointmentLayoutmanager = new LinearLayoutManager(this);
         appointmentView.setLayoutManager(appointmentLayoutmanager);
+        appointments = new LinkedList<>();
         appointmentAdapter = new AppointmentAdapter(appointments);
         appointmentView.setAdapter(appointmentAdapter);
 
@@ -85,6 +87,12 @@ public class MainActivity extends AppCompatActivity {
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
         });
+    }
+
+    protected void reloadAppointments(List<Appointment> newAppointments) {
+        appointmentAdapter.setAppointments(newAppointments);
+        Log.v(CLASS_NAME, "reloading appointments with " + newAppointments);
+        appointmentAdapter.notifyDataSetChanged();
     }
 
     @Override

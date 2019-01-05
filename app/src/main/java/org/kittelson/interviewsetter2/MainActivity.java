@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         appointmentLayoutmanager = new LinearLayoutManager(this);
         appointmentView.setLayoutManager(appointmentLayoutmanager);
         appointments = new LinkedList<>();
-        appointmentAdapter = new AppointmentAdapter(appointments);
+        appointmentAdapter = new AppointmentAdapter(appointments, appointmentView);
         appointmentView.setAdapter(appointmentAdapter);
 
         if (ContextCompat.checkSelfPermission(this, "android.permission.SEND_SMS") == PackageManager.PERMISSION_DENIED) {

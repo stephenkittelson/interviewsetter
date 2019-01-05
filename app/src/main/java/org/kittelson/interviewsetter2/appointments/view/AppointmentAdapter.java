@@ -2,6 +2,7 @@ package org.kittelson.interviewsetter2.appointments.view;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -14,10 +15,13 @@ import org.kittelson.interviewsetter2.appointments.AppointmentType;
 import java.util.List;
 
 public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHolder> {
+    private static String CLASS_NAME = AppointmentAdapter.class.getSimpleName();
     private List<Appointment> appointments;
+    private RecyclerView recyclerView;
 
-    public AppointmentAdapter(List<Appointment> appointments) {
+    public AppointmentAdapter(List<Appointment> appointments, RecyclerView recyclerView) {
         this.appointments = appointments;
+        this.recyclerView = recyclerView;
     }
 
     public void setAppointments(List<Appointment> newAppointments) {
@@ -27,7 +31,11 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
     @NonNull
     @Override
     public AppointmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new AppointmentViewHolder((TextView) LayoutInflater.from(parent.getContext()).inflate(R.layout.appointment_list_item, parent, false));
+        TextView view = (TextView) LayoutInflater.from(parent.getContext()).inflate(R.layout.appointment_list_item, parent, false);
+        view.setOnClickListener(v -> {
+            Log.v(CLASS_NAME, "clicked on item " + appointments.get(recyclerView.getChildLayoutPosition(v)));
+        });
+        return new AppointmentViewHolder(view);
     }
 
     @Override

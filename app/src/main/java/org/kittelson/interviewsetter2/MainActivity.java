@@ -1,13 +1,22 @@
 package org.kittelson.interviewsetter2;
 
 import android.Manifest;
+import android.content.ContentProvider;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +25,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -30,7 +40,7 @@ import org.kittelson.interviewsetter2.appointments.view.AppointmentAdapter;
 import java.util.LinkedList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static String CLASS_NAME = MainActivity.class.getSimpleName();
 
     private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -69,11 +79,17 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, 1);
         }
 
+        if (ContextCompat.checkSelfPermission(this, "android.permission.READ_CONTACTS") == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, 1);
+        }
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestScopes(new Scope(SPREADSHEETS_SCOPE))
                 .requestEmail()
                 .build();
         googleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        getSupportLoaderManager().initLoader(0, null, this);
 
         if (GoogleSignIn.getLastSignedInAccount(this) == null) {
             startActivityForResult(googleSignInClient.getSignInIntent(), RC_SIGN_IN);
@@ -128,5 +144,38 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+        return new CursorLoader(this,
+                ContactsContract.Data.CONTENT_URI,
+                new String[]{
+                        ContactsContract.CommonDataKinds.Phone.NUMBER
+                },
+                ContactsContract.Contacts.DISPLAY_NAME + " = ? AND " + ContactsContract.Data.MIMETYPE + " = '" + ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'",
+                new String[]{"Heidi"},
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+        if (data.getCount() > 0) {
+            data.moveToFirst();
+            String phoneNumber = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            Log.v(CLASS_NAME, "phone number: " + phoneNumber);
+//            startActivity(new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:5551; 5552; 5553"))
+            startActivity(new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + phoneNumber))
+                    .putExtra("sms_body", "Testing..."));
+        } else {
+            Log.e(CLASS_NAME, "failed to find contact");
+            Toast.makeText(this, "Failed to find contact", Toast.LENGTH_LONG);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+
     }
 }

@@ -2,6 +2,7 @@ package org.kittelson.interviewsetter2;
 
 import android.Manifest;
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -40,7 +41,7 @@ import org.kittelson.interviewsetter2.appointments.view.AppointmentAdapter;
 import java.util.LinkedList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MainActivity extends AppCompatActivity {
     private static String CLASS_NAME = MainActivity.class.getSimpleName();
 
     private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         appointmentLayoutmanager = new LinearLayoutManager(this);
         appointmentView.setLayoutManager(appointmentLayoutmanager);
         appointments = new LinkedList<>();
-        appointmentAdapter = new AppointmentAdapter(appointments, appointmentView);
+        appointmentAdapter = new AppointmentAdapter(this, appointments, appointmentView);
         appointmentView.setAdapter(appointmentAdapter);
 
         if (ContextCompat.checkSelfPermission(this, "android.permission.SEND_SMS") == PackageManager.PERMISSION_DENIED) {
@@ -88,8 +89,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 .requestEmail()
                 .build();
         googleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        getSupportLoaderManager().initLoader(0, null, this);
 
         if (GoogleSignIn.getLastSignedInAccount(this) == null) {
             startActivityForResult(googleSignInClient.getSignInIntent(), RC_SIGN_IN);
@@ -144,38 +143,5 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @NonNull
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
-        return new CursorLoader(this,
-                ContactsContract.Data.CONTENT_URI,
-                new String[]{
-                        ContactsContract.CommonDataKinds.Phone.NUMBER
-                },
-                ContactsContract.Contacts.DISPLAY_NAME + " = ? AND " + ContactsContract.Data.MIMETYPE + " = '" + ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'",
-                new String[]{"Heidi"},
-                null);
-    }
-
-    @Override
-    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-        if (data.getCount() > 0) {
-            data.moveToFirst();
-            String phoneNumber = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            Log.v(CLASS_NAME, "phone number: " + phoneNumber);
-//            startActivity(new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:5551; 5552; 5553"))
-            startActivity(new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + phoneNumber))
-                    .putExtra("sms_body", "Testing..."));
-        } else {
-            Log.e(CLASS_NAME, "failed to find contact");
-            Toast.makeText(this, "Failed to find contact", Toast.LENGTH_LONG);
-        }
-    }
-
-    @Override
-    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-
     }
 }

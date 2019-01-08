@@ -18,8 +18,11 @@ import org.kittelson.interviewsetter2.R;
 import org.kittelson.interviewsetter2.appointments.Appointment;
 import org.kittelson.interviewsetter2.appointments.AppointmentType;
 
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHolder> {
     private static String CLASS_NAME = AppointmentAdapter.class.getSimpleName();
@@ -59,8 +62,16 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
                 allPhoneNumbers.add(phoneNumber);
             }
             cursor.close();
+            String msg = "";
+            if (appointment.getAppointmentType().equals(AppointmentType.Ministering)) {
+                msg = "Could you guys meet with a member of the EQ presidency for a ministering interview on ";
+            } else {
+                msg = "Could you meet with Pres TODO for an individual stewardship interview on ";
+            }
+            msg += appointment.getTime().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault())
+                    + " at " + DateTimeFormatter.ofPattern("h:m").format(appointment.getTime()) + " " + appointment.getLocation() + "?";
             fragmentActivity.startActivity(new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + StringUtils.join(allPhoneNumbers, ";")))
-                    .putExtra("sms_body", "Testing..."));
+                    .putExtra("sms_body", msg));
         });
         return new AppointmentViewHolder(view);
     }

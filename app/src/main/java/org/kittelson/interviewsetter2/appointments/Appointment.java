@@ -29,7 +29,7 @@ public class Appointment {
 
     public Appointment setTime(Double serialDate) {
         // coming in as a number, translate using https://developers.google.com/sheets/api/reference/rest/v4/DateTimeRenderOption#ENUM_VALUES.SERIAL_NUMBER
-        this.time = LocalDateTime.of(1899, 12, 30, 0, 0).plusMinutes(Double.valueOf(serialDate /* days */ * 24.0 /* hr / day */ * 60.0 /* min / hr */).longValue());
+        this.time = LocalDateTime.of(1899, 12, 30, 0, 0).plusMinutes(Math.round(Double.valueOf(serialDate /* days */ * 24.0 /* hr / day */ * 60.0 /* min / hr */)));
         return this;
     }
 

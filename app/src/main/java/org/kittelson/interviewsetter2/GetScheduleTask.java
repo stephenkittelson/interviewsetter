@@ -13,6 +13,7 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 
 import org.kittelson.interviewsetter2.appointments.Appointment;
+import org.kittelson.interviewsetter2.appointments.AppointmentStage;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -61,7 +62,8 @@ public class GetScheduleTask extends AsyncTask<Account, Void, List<Appointment>>
                                             .setCompanions(rowData.getValues().get(4).getEffectiveValue().getStringValue())
                                             .setLocation(rowData.getValues().get(5).getEffectiveValue().getStringValue())
                                             .setStage(rowData.getValues().get(6).getEffectiveValue().getStringValue())
-                                    ).filter(appt -> appt.getTime().isBefore(LocalDateTime.now().plusWeeks(1))))).collect(Collectors.toList());
+                                    ).filter(appt -> appt.getTime().isBefore(LocalDateTime.now().plusWeeks(1)) && !appt.getStage().equals(AppointmentStage.Confirmed))
+                            )).collect(Collectors.toList());
             Log.v(CLASS_NAME, "appointments: " + appointments);
         } catch (UserRecoverableAuthIOException ex) {
             context.startActivity(ex.getIntent());

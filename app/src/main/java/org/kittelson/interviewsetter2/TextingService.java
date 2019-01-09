@@ -33,9 +33,9 @@ public class TextingService extends JobService {
         getSystemService(NotificationManager.class).createNotificationChannel(channel);
 
         Intent pendingIntent = new Intent(this, SendTexts.class);
-
+        // TODO add notification for sending out confirmation text messages for appointments on the next day
         NotificationManagerCompat.from(this).notify(0, new NotificationCompat.Builder(this, SEND_TEXTS_NOTIF_CHANNEL)
-                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setSmallIcon(android.R.drawable.ic_menu_send)
                 .setContentTitle("Send out msgs")
                 .setContentText("Time to setup appointments!")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)

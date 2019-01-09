@@ -99,8 +99,9 @@ public class MainActivity extends AppCompatActivity {
         new JobSchedulingManager().scheduleNextTextingJob(this);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener((View view) -> {
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+            Snackbar.make(view, "Reloading", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
+            new GetScheduleTask(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
         });
     }
 

@@ -94,7 +94,11 @@ public class Appointment {
     }
 
     public Appointment setAppointmentType(String appointmentType) {
-        this.appointmentType = AppointmentType.valueOf(appointmentType);
+        if (StringUtils.equals(appointmentType, "Comp chg")) {
+            this.appointmentType = AppointmentType.CompChg;
+        } else {
+            this.appointmentType = AppointmentType.valueOf(appointmentType);
+        }
         return this;
     }
 

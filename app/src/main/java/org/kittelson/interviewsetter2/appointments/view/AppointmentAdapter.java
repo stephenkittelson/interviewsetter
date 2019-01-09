@@ -63,10 +63,10 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
             }
             cursor.close();
             String msg = "";
-            if (appointment.getAppointmentType().equals(AppointmentType.Ministering)) {
-                msg = "Could you guys meet with a member of the EQ presidency for a ministering interview on ";
-            } else {
+            if (appointment.getAppointmentType().equals(AppointmentType.Stewardship)) {
                 msg = "Could you meet with Pres TODO for an individual stewardship interview on ";
+            } else {
+                msg = "Could you guys meet with a member of the EQ presidency for a ministering interview on ";
             }
             msg += appointment.getTime().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault())
                     + " at " + DateTimeFormatter.ofPattern("h:m").format(appointment.getTime()) + " " + appointment.getLocation() + "?";

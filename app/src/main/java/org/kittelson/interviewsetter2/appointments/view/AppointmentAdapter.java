@@ -65,8 +65,11 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
             String msg = "";
             if (appointment.getAppointmentType().equals(AppointmentType.Stewardship)) {
                 msg = "Could you meet with Pres TODO for an individual stewardship interview on ";
-            } else {
+            } else if (allPhoneNumbers.size() > 1) {
                 msg = "Could you guys meet with a member of the EQ presidency for a ministering interview on ";
+            } else {
+                // TODO output first name of companion instead of generic reference
+                msg = "Could you and your companion meet with a member of the EQ presidency for a ministering interview on ";
             }
             msg += appointment.getTime().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault())
                     + " at " + DateTimeFormatter.ofPattern("h:mm").format(appointment.getTime()) + " " + appointment.getLocation() + "?";

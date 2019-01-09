@@ -69,7 +69,7 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
                 msg = "Could you guys meet with a member of the EQ presidency for a ministering interview on ";
             }
             msg += appointment.getTime().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault())
-                    + " at " + DateTimeFormatter.ofPattern("h:m").format(appointment.getTime()) + " " + appointment.getLocation() + "?";
+                    + " at " + DateTimeFormatter.ofPattern("h:mm").format(appointment.getTime()) + " " + appointment.getLocation() + "?";
             fragmentActivity.startActivity(new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + StringUtils.join(allPhoneNumbers, ";")))
                     .putExtra("sms_body", msg));
         });

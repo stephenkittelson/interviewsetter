@@ -26,10 +26,8 @@ public class TextingService extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters params) {
-        Toast.makeText(this, "job executing!", Toast.LENGTH_LONG).show();
-        Log.v("TextingService", "job running!");
         NotificationChannel channel = new NotificationChannel(SEND_TEXTS_NOTIF_CHANNEL, "Send Text messages", NotificationManager.IMPORTANCE_HIGH);
-        channel.setDescription("Notifies when it's time to send out text messages to set appointments for the next Sunday.");
+        channel.setDescription("Notifies when it's time to send out text messages.");
         getSystemService(NotificationManager.class).createNotificationChannel(channel);
 
         Intent pendingIntent = new Intent(this, SendTexts.class);

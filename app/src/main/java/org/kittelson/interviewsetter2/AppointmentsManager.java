@@ -2,7 +2,6 @@ package org.kittelson.interviewsetter2;
 
 import android.accounts.Account;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -13,30 +12,22 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 
 import org.kittelson.interviewsetter2.appointments.Appointment;
-import org.kittelson.interviewsetter2.appointments.AppointmentStage;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class GetScheduleTask extends AsyncTask<Account, Void, List<Appointment>> {
-    private static String CLASS_NAME = GetScheduleTask.class.getSimpleName();
+public class AppointmentsManager {
+    private static final String CLASS_NAME = AppointmentsManager.class.getSimpleName();
     private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
 
-    private MainActivity context;
-
-    public GetScheduleTask(MainActivity context) {
-        this.context = context;
-    }
-
-    @Override
-    protected List<Appointment> doInBackground(Account... accounts) {
+    public List<Appointment> getAppointments(Account account, Predicate<Appointment> filter, Context context) {
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(context, Collections.singleton(SPREADSHEETS_SCOPE));
-        credential.setSelectedAccount(accounts[0]);
+        credential.setSelectedAccount(account);
         Sheets sheetsService = new Sheets.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), credential).build();
         Spreadsheet response = null;
         List<Appointment> appointments = new LinkedList<>();
@@ -62,7 +53,7 @@ public class GetScheduleTask extends AsyncTask<Account, Void, List<Appointment>>
                                             .setCompanions(rowData.getValues().get(4).getEffectiveValue().getStringValue())
                                             .setLocation(rowData.getValues().get(5).getEffectiveValue().getStringValue())
                                             .setStage(rowData.getValues().get(6).getEffectiveValue().getStringValue())
-                                    ).filter(appt -> appt.getTime().isBefore(LocalDateTime.now().plusWeeks(1)) && !appt.getStage().equals(AppointmentStage.Confirmed))
+                                    ).filter(filter)
                             )).collect(Collectors.toList());
             Log.v(CLASS_NAME, "appointments: " + appointments);
         } catch (UserRecoverableAuthIOException ex) {
@@ -71,13 +62,5 @@ public class GetScheduleTask extends AsyncTask<Account, Void, List<Appointment>>
             Log.e(CLASS_NAME, "failure to get spreadsheet: " + e.getMessage(), e);
         }
         return appointments;
-    }
-
-    @Override
-    protected void onPostExecute(List<Appointment> appointments) {
-        super.onPostExecute(appointments);
-        if (context != null) {
-            context.reloadAppointments(appointments);
-        }
     }
 }

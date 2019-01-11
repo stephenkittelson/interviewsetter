@@ -12,10 +12,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.apache.commons.lang3.StringUtils;
 import org.kittelson.interviewsetter2.R;
 import org.kittelson.interviewsetter2.appointments.Appointment;
+import org.kittelson.interviewsetter2.appointments.AppointmentStage;
 import org.kittelson.interviewsetter2.appointments.AppointmentType;
 
 import java.time.format.DateTimeFormatter;
@@ -62,19 +64,33 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
                 allPhoneNumbers.add(phoneNumber);
             }
             cursor.close();
-            String msg = "";
-            if (appointment.getAppointmentType().equals(AppointmentType.Stewardship)) {
-                msg = "Could you meet with Pres TODO for an individual stewardship interview on ";
-            } else if (allPhoneNumbers.size() > 1) {
-                msg = "Could you guys meet with a member of the EQ presidency for a ministering interview on ";
+            if (allPhoneNumbers.size() == 0) {
+                Toast.makeText(fragmentActivity, "No phone numbers for companionship", Toast.LENGTH_LONG);
             } else {
-                // TODO output first name of companion instead of generic reference
-                msg = "Could you and your companion meet with a member of the EQ presidency for a ministering interview on ";
+                String msg = "";
+                if (!appointment.getStage().equals(AppointmentStage.Confirmed) && !appointment.getStage().equals(AppointmentStage.Set)) {
+                    if (appointment.getAppointmentType().equals(AppointmentType.Stewardship)) {
+                        msg = "Could you meet with Pres TODO for an individual stewardship interview on ";
+                    } else if (allPhoneNumbers.size() > 1) {
+                        msg = "Could you guys meet with a member of the EQ presidency for a ministering interview on ";
+                    } else {
+                        // TODO output first name of companion instead of generic reference
+                        msg = "Could you and your companion meet with a member of the EQ presidency for a ministering interview on ";
+                    }
+                } else if (appointment.getStage().equals(AppointmentStage.Set)) {
+                    if (appointment.getAppointmentType().equals(AppointmentType.Stewardship)) {
+                        msg = "Just texting to confirm your individual stewardship interview with Pres TODO on ";
+                    } else {
+                        msg = "Just texting to confirm your ministering interview with a member of the EQ presidency on ";
+                    }
+                }
+                if (StringUtils.isNotEmpty(msg)) {
+                    msg += appointment.getTime().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault())
+                            + " at " + DateTimeFormatter.ofPattern("h:mm").format(appointment.getTime()) + " " + appointment.getLocation() + "?";
+                }
+                fragmentActivity.startActivity(new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + StringUtils.join(allPhoneNumbers, ";")))
+                        .putExtra("sms_body", msg));
             }
-            msg += appointment.getTime().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault())
-                    + " at " + DateTimeFormatter.ofPattern("h:mm").format(appointment.getTime()) + " " + appointment.getLocation() + "?";
-            fragmentActivity.startActivity(new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + StringUtils.join(allPhoneNumbers, ";")))
-                    .putExtra("sms_body", msg));
         });
         return new AppointmentViewHolder(view);
     }

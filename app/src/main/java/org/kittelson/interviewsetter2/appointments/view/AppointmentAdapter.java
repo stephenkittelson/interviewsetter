@@ -77,22 +77,25 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
                         // TODO output first name of companion instead of generic reference
                         msg = "Could you and your companion meet with a member of the EQ presidency for a ministering interview on ";
                     }
+                    msg += appointment.getTime().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " + getTimeAndLocation(appointment) + "?";
                 } else if (appointment.getStage().equals(AppointmentStage.Set)) {
                     if (appointment.getAppointmentType().equals(AppointmentType.Stewardship)) {
-                        msg = "Just texting to confirm your individual stewardship interview with Pres TODO on ";
+                        msg = "Just texting to confirm your individual stewardship interview with Pres TODO tomorrow ";
                     } else {
-                        msg = "Just texting to confirm your ministering interview with a member of the EQ presidency on ";
+                        msg = "Just texting to confirm your ministering interview with a member of the EQ presidency tomorrow ";
                     }
-                }
-                if (StringUtils.isNotEmpty(msg)) {
-                    msg += appointment.getTime().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault())
-                            + " at " + DateTimeFormatter.ofPattern("h:mm").format(appointment.getTime()) + " " + appointment.getLocation() + "?";
+                    msg += getTimeAndLocation(appointment);
                 }
                 fragmentActivity.startActivity(new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + StringUtils.join(allPhoneNumbers, ";")))
                         .putExtra("sms_body", msg));
             }
         });
         return new AppointmentViewHolder(view);
+    }
+
+    @NonNull
+    private String getTimeAndLocation(Appointment appointment) {
+        return "at " + DateTimeFormatter.ofPattern("h:mm").format(appointment.getTime()) + " " + appointment.getLocation();
     }
 
     @Override

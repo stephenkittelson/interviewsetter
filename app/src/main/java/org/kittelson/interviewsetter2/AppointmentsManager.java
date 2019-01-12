@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.content.Context;
 import android.util.Log;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
@@ -12,8 +13,10 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 
 import org.kittelson.interviewsetter2.appointments.Appointment;
+import org.kittelson.interviewsetter2.appointments.AppointmentStage;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -24,6 +27,19 @@ import java.util.stream.Collectors;
 public class AppointmentsManager {
     private static final String CLASS_NAME = AppointmentsManager.class.getSimpleName();
     private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
+
+    public List<Appointment> getTentativeAppointments(Account account, Context context) {
+        return getAppointments(account, appt -> appt.getTime().isBefore(LocalDateTime.now().plusDays(7))
+                && !appt.getStage().equals(AppointmentStage.Confirmed)
+                && !appt.getStage().equals(AppointmentStage.Set), context);
+    }
+
+    public List<Appointment> getAppointmentsToConfirm(Context context) {
+        return getAppointments(GoogleSignIn.getLastSignedInAccount(context).getAccount(),
+                appt -> appt.getTime().isBefore(LocalDateTime.now().plusDays(1).withHour(23))
+                        && appt.getStage().equals(AppointmentStage.Set),
+                context);
+    }
 
     public List<Appointment> getAppointments(Account account, Predicate<Appointment> filter, Context context) {
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(context, Collections.singleton(SPREADSHEETS_SCOPE));

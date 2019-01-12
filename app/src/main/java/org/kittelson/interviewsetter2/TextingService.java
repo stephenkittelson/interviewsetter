@@ -20,28 +20,16 @@ import java.time.ZonedDateTime;
 public class TextingService extends JobService {
     private static String CLASS_NAME = TextingService.class.getSimpleName();
 
-    private static final String SEND_TEXTS_NOTIF_CHANNEL = "sendTexts";
 
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
     @Override
     public boolean onStartJob(JobParameters params) {
-        NotificationChannel channel = new NotificationChannel(SEND_TEXTS_NOTIF_CHANNEL, "Send Text messages", NotificationManager.IMPORTANCE_HIGH);
+        NotificationChannel channel = new NotificationChannel(NotifyWork.SEND_TEXTS_NOTIF_CHANNEL, "Send Text messages", NotificationManager.IMPORTANCE_HIGH);
         channel.setDescription("Notifies when it's time to send out text messages.");
         getSystemService(NotificationManager.class).createNotificationChannel(channel);
 
-        Intent pendingIntent = new Intent(this, SendTexts.class);
-        // TODO add notification for sending out confirmation text messages for appointments on the next day
-        NotificationManagerCompat.from(this).notify(0, new NotificationCompat.Builder(this, SEND_TEXTS_NOTIF_CHANNEL)
-                .setSmallIcon(android.R.drawable.ic_menu_send)
-                .setContentTitle("Send out msgs")
-                .setContentText("Time to setup appointments!")
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setAutoCancel(true)
-                .setContentIntent(PendingIntent.getActivity(this, 0, pendingIntent, PendingIntent.FLAG_UPDATE_CURRENT))
-                .build());
-
-        Log.v(CLASS_NAME, "last signed in user: " + GoogleSignIn.getLastSignedInAccount(this));
+        new NotifyWork(this).execute();
         new JobSchedulingManager().scheduleNextJobWithOffset(this, ZonedDateTime.now().plusDays(1).withHour(9).withMinute(0));
         /*
          TODO keep executing in window, just don't reactivate the notification if 1) it's already active, 2) no one is pending a text message - all in case

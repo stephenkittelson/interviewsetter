@@ -36,10 +36,6 @@
             </intent-filter>
         </receiver>
 
-        <activity
-            android:name=".SendTexts"
-            android:label="@string/title_activity_send_texts"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

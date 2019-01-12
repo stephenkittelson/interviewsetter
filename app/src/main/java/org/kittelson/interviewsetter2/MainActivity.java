@@ -25,12 +25,13 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
 
 import org.kittelson.interviewsetter2.appointments.Appointment;
+import org.kittelson.interviewsetter2.appointments.AppointmentListCallback;
 import org.kittelson.interviewsetter2.appointments.view.AppointmentAdapter;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AppointmentListCallback {
     private static String CLASS_NAME = MainActivity.class.getSimpleName();
 
     private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private AppointmentAdapter appointmentAdapter;
     private RecyclerView.LayoutManager appointmentLayoutmanager;
     private List<Appointment> appointments;
+    private ApptViewState viewState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        viewState = ApptViewState.TentativeAppts;
         appointmentView = (RecyclerView) findViewById(R.id.recycler_view);
         appointmentView.setHasFixedSize(true);
         appointmentLayoutmanager = new LinearLayoutManager(this);
@@ -82,19 +85,25 @@ public class MainActivity extends AppCompatActivity {
         if (GoogleSignIn.getLastSignedInAccount(this) == null) {
             startActivityForResult(googleSignInClient.getSignInIntent(), RC_SIGN_IN);
         } else {
-            new LoadUnconfirmedList(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
+            new LoadApptList(this, this, viewState).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
         }
 
         new JobSchedulingManager().scheduleNextTextingJob(this);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener((View view) -> {
-            Snackbar.make(view, "Reloading", Snackbar.LENGTH_LONG)
+            if (viewState.equals(ApptViewState.TentativeAppts)) {
+                viewState = ApptViewState.ApptsToConfirm;
+            } else {
+                viewState = ApptViewState.TentativeAppts;
+            }
+            Snackbar.make(view, "Switching state to " + viewState, Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
-            new LoadUnconfirmedList(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
+
+            new LoadApptList(this, this, viewState).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
         });
     }
 
-    protected void reloadAppointments(List<Appointment> newAppointments) {
+    public void setAppointmentList(List<Appointment> newAppointments) {
         appointmentAdapter.setAppointments(newAppointments);
         Log.v(CLASS_NAME, "reloading appointments with " + newAppointments);
         appointmentAdapter.notifyDataSetChanged();
@@ -106,9 +115,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == RC_SIGN_IN) {
             try {
-                new LoadUnconfirmedList(this).execute(GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class).getAccount());
+                new LoadApptList(this, this, viewState).execute(GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class).getAccount());
             } catch (ApiException e) {
-                Log.w(CLASS_NAME, "signInResult:failed code=" + e.getStatusCode() + ", reason: " + GoogleSignInStatusCodes.getStatusCodeString(e.getStatusCode()), e);
+                Log.w(CLASS_NAME, "signInResult: failed code=" + e.getStatusCode() + ", reason: " + GoogleSignInStatusCodes.getStatusCodeString(e.getStatusCode()), e);
             }
         }
     }

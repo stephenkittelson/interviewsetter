@@ -48,12 +48,9 @@ public class MainActivity extends AppCompatActivity implements AppointmentListCa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         viewState = ApptViewState.TentativeAppts;
         appointmentView = (RecyclerView) findViewById(R.id.recycler_view);
-        appointmentView.setHasFixedSize(true);
         appointmentLayoutmanager = new LinearLayoutManager(this);
         appointmentView.setLayoutManager(appointmentLayoutmanager);
         appointments = new LinkedList<>();

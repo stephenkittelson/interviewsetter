@@ -4,5 +4,6 @@ public enum AppointmentType {
     Stewardship,
     Ministering,
     Chgs,
-    CompChg
+    CompChg,
+    Family
 }

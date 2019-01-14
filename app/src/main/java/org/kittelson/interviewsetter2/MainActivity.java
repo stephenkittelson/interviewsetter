@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements AppointmentListCa
     private RecyclerView.LayoutManager appointmentLayoutmanager;
     private List<Appointment> appointments;
     private ApptViewState viewState;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,9 +81,11 @@ public class MainActivity extends AppCompatActivity implements AppointmentListCa
                 .build();
         googleSignInClient = GoogleSignIn.getClient(this, gso);
 
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
         if (GoogleSignIn.getLastSignedInAccount(this) == null) {
             startActivityForResult(googleSignInClient.getSignInIntent(), RC_SIGN_IN);
         } else {
+            progressBar.setVisibility(ProgressBar.VISIBLE);
             new LoadApptList(this, this, viewState).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
         }
 
@@ -93,9 +97,8 @@ public class MainActivity extends AppCompatActivity implements AppointmentListCa
             } else {
                 viewState = ApptViewState.TentativeAppts;
             }
-            Snackbar.make(view, "Switching state to " + viewState, Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
 
+            progressBar.setVisibility(ProgressBar.VISIBLE);
             new LoadApptList(this, this, viewState).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
         });
     }
@@ -104,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements AppointmentListCa
         appointmentAdapter.setAppointments(newAppointments);
         Log.v(CLASS_NAME, "reloading appointments with " + newAppointments);
         appointmentAdapter.notifyDataSetChanged();
+        progressBar.setVisibility(ProgressBar.INVISIBLE);
     }
 
     @Override

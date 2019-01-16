@@ -16,9 +16,9 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
     private static final int SET_APPTS_NOTIFICATION = 0;
     private static final int CONFIRM_APPTS_NOTIFICATION = 1;
 
-    private Context context;
+    private TextingService context;
 
-    public NotifyWork(Context context) {
+    public NotifyWork(TextingService context) {
         this.context = context;
     }
 
@@ -47,6 +47,7 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
                     .setContentIntent(PendingIntent.getActivity(context, CONFIRM_APPTS_NOTIFICATION, new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT))
                     .build());
         }
+        context.jobFinished(null, false);
         return null;
     }
 

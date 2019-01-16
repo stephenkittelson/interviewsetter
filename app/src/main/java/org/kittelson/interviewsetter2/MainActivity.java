@@ -5,13 +5,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -86,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements AppointmentListCa
             startActivityForResult(googleSignInClient.getSignInIntent(), RC_SIGN_IN);
         } else {
             progressBar.setVisibility(ProgressBar.VISIBLE);
-            new LoadApptList(this, this, viewState).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
+            new LoadApptList(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
         }
 
         new JobSchedulingManager().scheduleNextTextingJob(this);
@@ -99,8 +97,12 @@ public class MainActivity extends AppCompatActivity implements AppointmentListCa
             }
 
             progressBar.setVisibility(ProgressBar.VISIBLE);
-            new LoadApptList(this, this, viewState).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
+            new LoadApptList(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
         });
+    }
+
+    public ApptViewState getViewState() {
+        return viewState;
     }
 
     public void setAppointmentList(List<Appointment> newAppointments) {
@@ -116,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements AppointmentListCa
 
         if (requestCode == RC_SIGN_IN) {
             try {
-                new LoadApptList(this, this, viewState).execute(GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class).getAccount());
+                new LoadApptList(this).execute(GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class).getAccount());
             } catch (ApiException e) {
                 Log.w(CLASS_NAME, "signInResult: failed code=" + e.getStatusCode() + ", reason: " + GoogleSignInStatusCodes.getStatusCodeString(e.getStatusCode()), e);
             }

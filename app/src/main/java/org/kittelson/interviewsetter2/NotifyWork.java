@@ -47,7 +47,7 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
                     .setContentIntent(PendingIntent.getActivity(context, CONFIRM_APPTS_NOTIFICATION, new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT))
                     .build());
         }
-        context.jobFinished(null, false);
+        context.finishJob();
         return null;
     }
 

@@ -2,8 +2,10 @@ package org.kittelson.interviewsetter2.appointments.view;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
@@ -99,7 +101,13 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
 
     @Override
     public void onBindViewHolder(@NonNull AppointmentViewHolder holder, int position) {
-        holder.textView.setText(StringUtils.join(appointments.get(position).getCompanions(), " / ") + (appointments.get(position).getAppointmentType().equals(AppointmentType.Stewardship) ? " (stewardship)" : ""));
+        Appointment appointment = appointments.get(position);
+        holder.textView.setText(StringUtils.join(appointment.getCompanions(), " / ") + (appointment.getAppointmentType().equals(AppointmentType.Stewardship) ? " (stewardship)" : ""));
+        if (appointment.isDuplicate()) {
+            holder.textView.setBackgroundColor(Color.RED);
+        } else {
+            holder.textView.setBackgroundColor(Color.WHITE);
+        }
     }
 
     @Override

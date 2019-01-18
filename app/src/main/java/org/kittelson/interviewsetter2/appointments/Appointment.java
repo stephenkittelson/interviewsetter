@@ -14,6 +14,7 @@ public class Appointment {
     private String location;
     private String presidencyMember;
     private AppointmentType appointmentType;
+    private boolean duplicate;
 
     public Appointment() {
     }
@@ -100,6 +101,14 @@ public class Appointment {
             this.appointmentType = AppointmentType.valueOf(appointmentType);
         }
         return this;
+    }
+
+    public boolean isDuplicate() {
+        return duplicate;
+    }
+
+    public void setDuplicate(boolean duplicate) {
+        this.duplicate = duplicate;
     }
 
     @Override

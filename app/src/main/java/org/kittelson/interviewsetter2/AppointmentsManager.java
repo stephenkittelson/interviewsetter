@@ -48,9 +48,9 @@ public class AppointmentsManager {
         Spreadsheet response = null;
         List<Appointment> appointments = new LinkedList<>();
         try {
-            response = sheetsService.spreadsheets().get("TODO").setRanges(Arrays.asList("'Upcoming Interviews'!A2:G30"))
+            response = sheetsService.spreadsheets().get("TODO").setRanges(Arrays.asList("'Upcoming Interviews'!A2:G100"))
                     .setFields("sheets.data.rowData.values.effectiveValue").execute();
-            appointments = response.getSheets().stream()
+            List<Appointment> allAppointments = response.getSheets().stream()
                     .flatMap(sheet -> sheet.getData().stream()
                             .flatMap(gridData -> gridData.getRowData().stream()
                                     .filter(rowData -> rowData.getValues() != null && rowData.getValues().size() >= 7)
@@ -69,8 +69,19 @@ public class AppointmentsManager {
                                             .setCompanions(rowData.getValues().get(4).getEffectiveValue().getStringValue())
                                             .setLocation(rowData.getValues().get(5).getEffectiveValue().getStringValue())
                                             .setStage(rowData.getValues().get(6).getEffectiveValue().getStringValue())
-                                    ).filter(filter)
+                                    )
                             )).collect(Collectors.toList());
+
+            // validate rest of the sheet - mark duplicate appointments
+            appointments = allAppointments.stream().peek(appt -> {
+                if (allAppointments.stream().filter(subAppt -> subAppt.getAppointmentType().equals(appt.getAppointmentType())
+                        && appt.getCompanions().containsAll(subAppt.getCompanions())
+                        && subAppt.getCompanions().containsAll(appt.getCompanions())
+                        && !appt.getTime().equals(subAppt.getTime())).findAny().isPresent()) {
+                    Log.v(CLASS_NAME, "found duplicate: " + appt);
+                    appt.setDuplicate(true);
+                }
+            }).filter(filter).collect(Collectors.toList());
             Log.v(CLASS_NAME, "appointments: " + appointments);
         } catch (UserRecoverableAuthIOException ex) {
             context.startActivity(ex.getIntent());

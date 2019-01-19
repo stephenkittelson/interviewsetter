@@ -44,7 +44,7 @@ public class AppointmentsManager {
     public List<Appointment> getAppointments(Account account, Predicate<Appointment> filter, Context context) {
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(context, Collections.singleton(SPREADSHEETS_SCOPE));
         credential.setSelectedAccount(account);
-        Sheets sheetsService = new Sheets.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), credential).build();
+        Sheets sheetsService = new Sheets.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), credential).setApplicationName("InterviewSetter").build();
         Spreadsheet response = null;
         List<Appointment> appointments = new LinkedList<>();
         try {

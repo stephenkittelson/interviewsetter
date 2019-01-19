@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -86,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements AppointmentListCa
             progressBar.setVisibility(ProgressBar.VISIBLE);
             new LoadApptList(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
         }
+        ((Toolbar) findViewById(R.id.toolbar)).setTitle(viewState.toString());
 
         new JobSchedulingManager().scheduleNextTextingJob(this);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -95,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements AppointmentListCa
             } else {
                 viewState = ApptViewState.TentativeAppts;
             }
-
+            ((Toolbar) findViewById(R.id.toolbar)).setTitle(viewState.toString());
             progressBar.setVisibility(ProgressBar.VISIBLE);
             new LoadApptList(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
         });

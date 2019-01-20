@@ -116,7 +116,7 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
 
     @NonNull
     private String getTimeAndLocation(Appointment appointment) {
-        return "at " + DateTimeFormatter.ofPattern("h:mm").format(appointment.getTime()) + " " + appointment.getLocation();
+        return "at " + DateTimeFormatter.ofPattern("h:mm a").format(appointment.getTime()) + " " + appointment.getLocation();
     }
 
     @Override

@@ -45,7 +45,7 @@ public class AppointmentsManager {
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(context, Collections.singleton(SPREADSHEETS_SCOPE));
         credential.setSelectedAccount(account);
         Sheets sheetsService = new Sheets.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), credential).setApplicationName("InterviewSetter").build();
-        Spreadsheet response = null;
+        Spreadsheet response;
         List<Appointment> appointments = new LinkedList<>();
         try {
             response = sheetsService.spreadsheets().get("TODO").setRanges(Arrays.asList("'Upcoming Interviews'!A2:G100"))

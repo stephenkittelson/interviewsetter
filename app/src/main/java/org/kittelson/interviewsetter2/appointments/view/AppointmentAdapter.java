@@ -36,6 +36,8 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
     private RecyclerView recyclerView;
     private FragmentActivity fragmentActivity;
 
+    private static final String PRES_LAST_NAME = "TODO";
+
     public AppointmentAdapter(FragmentActivity fragmentActivity, List<Appointment> appointments, RecyclerView recyclerView) {
         this.fragmentActivity = fragmentActivity;
         this.appointments = appointments;
@@ -62,7 +64,7 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
             String msg = "";
             if (!appointment.getStage().equals(AppointmentStage.Confirmed) && !appointment.getStage().equals(AppointmentStage.Set)) {
                 if (appointment.getAppointmentType().equals(AppointmentType.Stewardship)) {
-                    msg = "Could you meet with Pres TODO for an individual stewardship interview ";
+                    msg = "Could you meet with Pres " + PRES_LAST_NAME + " for an individual stewardship interview ";
                 } else if (allContactInfo.size() > 1) {
                     msg = "Could you guys meet with a member of the EQ presidency for a ministering interview ";
                 } else if (appointment.getCompanions().size() > 1) {
@@ -76,7 +78,7 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
                 msg += getTimeAndLocation(appointment) + "?";
             } else if (appointment.getStage().equals(AppointmentStage.Set)) {
                 if (appointment.getAppointmentType().equals(AppointmentType.Stewardship)) {
-                    msg = "Just texting to confirm your individual stewardship interview with Pres TODO ";
+                    msg = "Just texting to confirm your individual stewardship interview with Pres " + PRES_LAST_NAME + " ";
                 } else if (allContactInfo.size() == 1 && appointment.getCompanions().size() > 1) {
                     msg = "Just texting to confirm you and " + getNameMissingPhoneNum(appointment, allContactInfo) + "'s ministering interview with a member of the EQ presidency ";
                 } else {

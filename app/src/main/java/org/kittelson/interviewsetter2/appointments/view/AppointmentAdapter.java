@@ -22,6 +22,7 @@ import org.kittelson.interviewsetter2.appointments.Appointment;
 import org.kittelson.interviewsetter2.appointments.AppointmentStage;
 import org.kittelson.interviewsetter2.appointments.AppointmentType;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.LinkedList;
@@ -61,25 +62,27 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
             String msg = "";
             if (!appointment.getStage().equals(AppointmentStage.Confirmed) && !appointment.getStage().equals(AppointmentStage.Set)) {
                 if (appointment.getAppointmentType().equals(AppointmentType.Stewardship)) {
-                    msg = "Could you meet with Pres TODO for an individual stewardship interview on ";
+                    msg = "Could you meet with Pres TODO for an individual stewardship interview ";
                 } else if (allContactInfo.size() > 1) {
-                    msg = "Could you guys meet with a member of the EQ presidency for a ministering interview on ";
+                    msg = "Could you guys meet with a member of the EQ presidency for a ministering interview ";
                 } else if (appointment.getCompanions().size() > 1) {
                     String nameMissingPhoneNum = getNameMissingPhoneNum(appointment, allContactInfo);
                     Log.v(CLASS_NAME, "Missing phone number for " + nameMissingPhoneNum + ", companions: " + appointment.getCompanions() + ", contact info: " + allContactInfo);
-                    msg = "Could you and " + nameMissingPhoneNum + " meet with a member of the EQ presidency for a ministering interview on ";
+                    msg = "Could you and " + nameMissingPhoneNum + " meet with a member of the EQ presidency for a ministering interview ";
                 } else {
-                    msg = "Could you meet with a member of the EQ presidency for a ministering interview on ";
+                    msg = "Could you meet with a member of the EQ presidency for a ministering interview ";
                 }
-                msg += appointment.getTime().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " + getTimeAndLocation(appointment) + "?";
+
+                msg += getTimeAndLocation(appointment) + "?";
             } else if (appointment.getStage().equals(AppointmentStage.Set)) {
                 if (appointment.getAppointmentType().equals(AppointmentType.Stewardship)) {
-                    msg = "Just texting to confirm your individual stewardship interview with Pres TODO tomorrow ";
+                    msg = "Just texting to confirm your individual stewardship interview with Pres TODO ";
                 } else if (allContactInfo.size() == 1 && appointment.getCompanions().size() > 1) {
-                    msg = "Just texting to confirm you and " + getNameMissingPhoneNum(appointment, allContactInfo) + "'s ministering interview with a member of the EQ presidency tomorrow ";
+                    msg = "Just texting to confirm you and " + getNameMissingPhoneNum(appointment, allContactInfo) + "'s ministering interview with a member of the EQ presidency ";
                 } else {
-                    msg = "Just texting to confirm your ministering interview with a member of the EQ presidency tomorrow ";
+                    msg = "Just texting to confirm your ministering interview with a member of the EQ presidency ";
                 }
+
                 msg += getTimeAndLocation(appointment);
             }
             fragmentActivity.startActivity(new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + StringUtils.join(allContactInfo.stream().map(contactInfo -> contactInfo.getPhoneNumber()).collect(Collectors.toList()), ";")))
@@ -89,8 +92,8 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
 
     private String getNameMissingPhoneNum(Appointment appointment, List<ContactInfo> allContactInfo) {
         return appointment.getCompanions().stream()
-                                .filter(companion -> allContactInfo.stream().noneMatch(contactInfo -> contactInfo.getName().equals(companion)))
-                                .findFirst().get().split(" ")[0];
+                .filter(companion -> allContactInfo.stream().noneMatch(contactInfo -> contactInfo.getName().equals(companion)))
+                .findFirst().get().split(" ")[0];
     }
 
     @NonNull
@@ -116,7 +119,15 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
 
     @NonNull
     private String getTimeAndLocation(Appointment appointment) {
-        return "at " + DateTimeFormatter.ofPattern("h:mm a").format(appointment.getTime()) + " " + appointment.getLocation();
+        String msg;
+        if (appointment.getTime().isBefore(LocalDateTime.now().withHour(23).withMinute(59))) {
+            msg = "today ";
+        } else if (appointment.getTime().isBefore(LocalDateTime.now().plusDays(1).withHour(23).withMinute(59))) {
+            msg = "tomorrow ";
+        } else {
+            msg = "on " + appointment.getTime().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()) + " ";
+        }
+        return msg + "at " + DateTimeFormatter.ofPattern("h:mm a").format(appointment.getTime()) + " " + appointment.getLocation();
     }
 
     @Override

@@ -28,6 +28,8 @@ public class AppointmentsManager {
     private static final String CLASS_NAME = AppointmentsManager.class.getSimpleName();
     private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
 
+    public static final String SPREADSHEET_ID = "TODO";
+
     public List<Appointment> getTentativeAppointments(Account account, Context context) {
         return getAppointments(account, appt -> appt.getTime().isBefore(LocalDateTime.now().plusDays(7))
                 && !appt.getStage().equals(AppointmentStage.Confirmed)
@@ -48,7 +50,7 @@ public class AppointmentsManager {
         Spreadsheet response;
         List<Appointment> appointments = new LinkedList<>();
         try {
-            response = sheetsService.spreadsheets().get("TODO").setRanges(Arrays.asList("'Upcoming Interviews'!A2:G100"))
+            response = sheetsService.spreadsheets().get(SPREADSHEET_ID).setRanges(Arrays.asList("'Upcoming Interviews'!A2:G100"))
                     .setFields("sheets.data.rowData.values.effectiveValue").execute();
             List<Appointment> allAppointments = response.getSheets().stream()
                     .flatMap(sheet -> sheet.getData().stream()

@@ -38,11 +38,12 @@ public class JobSchedulingManager {
     public JobWindow getNextJobWindow(ZonedDateTime currentTime) {
         ZonedDateTime windowStart;
         ZonedDateTime windowEnd;
-        DayOfWeek nextWindowDay = DayOfWeek.TUESDAY;
+        DayOfWeek nextWindowDay = DayOfWeek.MONDAY;
         int currentWindowStartHour = 19;
         int nextWindowStartHour = 19;
         boolean isWindowToday = true;
         switch (currentTime.getDayOfWeek()) {
+            case MONDAY:
             case TUESDAY:
             case WEDNESDAY:
             case THURSDAY:
@@ -59,14 +60,13 @@ public class JobSchedulingManager {
                 break;
             case SATURDAY:
                 isWindowToday = true;
-                nextWindowDay = DayOfWeek.TUESDAY;
+                nextWindowDay = DayOfWeek.MONDAY;
                 nextWindowStartHour = 19;
                 currentWindowStartHour = 10;
                 break;
-            case MONDAY:
             case SUNDAY:
                 isWindowToday = false;
-                nextWindowDay = DayOfWeek.TUESDAY;
+                nextWindowDay = DayOfWeek.MONDAY;
                 nextWindowStartHour = 19;
                 break;
         }

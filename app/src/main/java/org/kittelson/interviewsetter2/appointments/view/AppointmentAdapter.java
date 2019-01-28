@@ -65,6 +65,8 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
             if (!appointment.getStage().equals(AppointmentStage.Confirmed) && !appointment.getStage().equals(AppointmentStage.Set)) {
                 if (appointment.getAppointmentType().equals(AppointmentType.Stewardship)) {
                     msg = "Could you meet with Pres " + PRES_LAST_NAME + " for an individual stewardship interview ";
+                } else if (appointment.getAppointmentType().equals(AppointmentType.Family)) {
+                    msg = "Could the EQ presidency visit you and your family ";
                 } else if (allContactInfo.size() > 1) {
                     msg = "Could you guys meet with a member of the EQ presidency for a ministering interview ";
                 } else if (appointment.getCompanions().size() > 1) {
@@ -79,6 +81,8 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
             } else if (appointment.getStage().equals(AppointmentStage.Set)) {
                 if (appointment.getAppointmentType().equals(AppointmentType.Stewardship)) {
                     msg = "Just texting to confirm your individual stewardship interview with Pres " + PRES_LAST_NAME + " ";
+                } else if (appointment.getAppointmentType().equals(AppointmentType.Family)) {
+                    msg = "Just texting to confirm that the EQ presidency will visit you and your family ";
                 } else if (allContactInfo.size() == 1 && appointment.getCompanions().size() > 1) {
                     msg = "Just texting to confirm you and " + getNameMissingPhoneNum(appointment, allContactInfo) + "'s ministering interview with a member of the EQ presidency ";
                 } else {
@@ -129,7 +133,13 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
         } else {
             msg = "on " + appointment.getTime().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()) + " ";
         }
-        return msg + "at " + DateTimeFormatter.ofPattern("h:mm a").format(appointment.getTime()) + " " + appointment.getLocation();
+        msg += "at " + DateTimeFormatter.ofPattern("h:mm a").format(appointment.getTime()) + " ";
+        if (appointment.getAppointmentType().equals(AppointmentType.Family)) {
+            msg += "at your place";
+        } else {
+            msg += appointment.getLocation();
+        }
+        return msg;
     }
 
     @Override

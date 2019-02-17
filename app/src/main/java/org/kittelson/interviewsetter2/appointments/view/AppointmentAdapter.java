@@ -35,6 +35,7 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
     private List<Appointment> appointments;
     private RecyclerView recyclerView;
     private FragmentActivity fragmentActivity;
+    private Appointment detail;
 
     private static final String PRES_LAST_NAME = "TODO";
 
@@ -53,6 +54,10 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
     public AppointmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         TextView view = (TextView) LayoutInflater.from(parent.getContext()).inflate(R.layout.appointment_list_item, parent, false);
         view.setOnClickListener(v -> openTextMsg(appointments.get(recyclerView.getChildLayoutPosition(v)), getContactInfo(appointments.get(recyclerView.getChildLayoutPosition(v)))));
+        view.setOnLongClickListener(v -> {
+            // TODO show the detail view, provide a way back to the list view
+            return true;
+        });
         return new AppointmentViewHolder(view);
     }
 

@@ -2,4 +2,14 @@
     <string name="app_name">InterviewSetter2</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_send_texts">SendTexts</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_sheet_id">Google Sheet ID</string>
+    <string name="pref_default_display_name">John Smith</string>
+
 </resources>

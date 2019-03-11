@@ -11,5 +11,8 @@
 
     <string name="pref_title_sheet_id">Google Sheet ID</string>
     <string name="pref_default_display_name">John Smith</string>
+    <string name="tentative_appts_text">Tentative Appts</string>
+    <string name="appts_to_confirm_text">Appts to Confirm</string>
+    <string name="settings_text">Settings</string>
 
 </resources>

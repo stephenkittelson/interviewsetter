@@ -50,6 +50,9 @@ public class MainActivity extends AppCompatActivity implements AppointmentListCa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         viewState = ApptViewState.TentativeAppts;
         appointmentView = (RecyclerView) findViewById(R.id.recycler_view);
         appointmentLayoutmanager = new LinearLayoutManager(this);

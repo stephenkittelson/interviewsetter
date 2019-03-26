@@ -1,13 +1,20 @@
 package org.kittelson.interviewsetter2.appointments;
 
+import android.util.Log;
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Appointment {
+    private static String CLASS_NAME = Appointment.class.getSimpleName();
+
     private LocalDateTime time;
     private List<String> companions;
     private AppointmentStage stage;
@@ -43,14 +50,25 @@ public class Appointment {
         return this;
     }
 
+    private static Pattern twoCompanionPattern = Pattern.compile("^ *~? *(\\S+) *, *(\\S+) */ *~? *(\\S+) *, *(\\S+)");
+    private static Pattern oneCompanionPattern = Pattern.compile("^ *~? *(\\S+) *, *(\\S+)");
+    private static Pattern familyPattern = Pattern.compile("^ *~? *(\\S+) *, *(\\S+) *& *(\\S+)");
+
     public Appointment setCompanions(String companions) {
-        if (companions.contains("&")) {
-            companions = StringUtils.substringBefore(StringUtils.strip(companions, "~"), "&");
+        Matcher familyMatcher = familyPattern.matcher(companions);
+        Matcher twoCompanionMatcher = twoCompanionPattern.matcher(companions);
+        Matcher oneCompanionMatcher = oneCompanionPattern.matcher(companions);
+        this.companions = new ArrayList<>();
+        if (familyMatcher.find()) {
+            this.companions.add(familyMatcher.group(2) + " " + familyMatcher.group(1));
+        } else if (twoCompanionMatcher.find()) {
+            this.companions.add(twoCompanionMatcher.group(2) + " " + twoCompanionMatcher.group(1));
+            this.companions.add(twoCompanionMatcher.group(4) + " " + twoCompanionMatcher.group(3));
+        } else if (oneCompanionMatcher.find()) {
+            this.companions.add(oneCompanionMatcher.group(2) + " " + oneCompanionMatcher.group(1));
+        } else {
+            Log.w(CLASS_NAME, "skipping unknown companion format: " + companions);
         }
-        this.companions = Arrays.stream(companions.split("/")).map(companion -> {
-            String[] reversedName = StringUtils.strip(StringUtils.trim(companion), "~").split(",");
-            return StringUtils.trim(reversedName[1]) + " " + StringUtils.trim(reversedName[0]);
-        }).collect(Collectors.toList());
         return this;
     }
 

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="7dp"
+    android:textSize="60px"
+    android:text="This is only a test"
+    xmlns:android="http://schemas.android.com/apk/res/android" />

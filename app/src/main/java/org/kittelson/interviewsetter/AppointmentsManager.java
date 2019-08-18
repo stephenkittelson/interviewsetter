@@ -1,4 +1,4 @@
-package org.kittelson.interviewsetter2;
+package org.kittelson.interviewsetter;
 
 import android.accounts.Account;
 import android.content.Context;
@@ -12,8 +12,8 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 
-import org.kittelson.interviewsetter2.appointments.Appointment;
-import org.kittelson.interviewsetter2.appointments.AppointmentStage;
+import org.kittelson.interviewsetter.appointments.Appointment;
+import org.kittelson.interviewsetter.appointments.AppointmentStage;
 
 import java.io.IOException;
 import java.time.LocalDateTime;

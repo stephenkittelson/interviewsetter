@@ -1,4 +1,4 @@
-package org.kittelson.interviewsetter2.appointments;
+package org.kittelson.interviewsetter.appointments;
 
 public enum AppointmentType {
     Stewardship,

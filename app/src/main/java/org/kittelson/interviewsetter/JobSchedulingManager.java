@@ -1,4 +1,4 @@
-package org.kittelson.interviewsetter2;
+package org.kittelson.interviewsetter;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;

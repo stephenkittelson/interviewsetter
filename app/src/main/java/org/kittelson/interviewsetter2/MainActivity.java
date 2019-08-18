@@ -48,6 +48,11 @@ public class MainActivity extends AppCompatActivity implements AppointmentListCa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.action_settings, new SettingsFragment())
+                .commit();
+
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

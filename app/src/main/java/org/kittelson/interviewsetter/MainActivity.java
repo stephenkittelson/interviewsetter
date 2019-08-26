@@ -1,20 +1,46 @@
 package org.kittelson.interviewsetter;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.Scope;
+
+import org.kittelson.interviewsetter.appointments.Appointment;
+import org.kittelson.interviewsetter.appointments.view.AppointmentAdapter;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    private static String CLASS_NAME = MainActivity.class.getSimpleName();
 
     private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
 
-    //    private GoogleSignInClient googleSignInClient;
-//    private RecyclerView appointmentView;
-//    private AppointmentAdapter appointmentAdapter;
-//    private RecyclerView.LayoutManager appointmentLayoutmanager;
-//    private List<Appointment> appointments;
-//    private ApptViewState viewState;
-//    private ProgressBar progressBar;
+    private static int RC_SIGN_IN = 9001;
+
+    private GoogleSignInClient googleSignInClient;
+    private RecyclerView appointmentView;
+    private AppointmentAdapter appointmentAdapter;
+    private RecyclerView.LayoutManager appointmentLayoutmanager;
+    private List<Appointment> appointments;
+    private ApptViewState viewState;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,10 +52,11 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
 */
         setContentView(R.layout.activity_main);
-/*
 
+/*
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+*/
 
         viewState = ApptViewState.TentativeAppts;
         appointmentView = (RecyclerView) findViewById(R.id.recycler_view);
@@ -68,9 +95,10 @@ public class MainActivity extends AppCompatActivity {
             progressBar.setVisibility(ProgressBar.VISIBLE);
             new LoadApptList(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
         }
-        ((Toolbar) findViewById(R.id.toolbar)).setTitle(viewState.toString());
+//        ((Toolbar) findViewById(R.id.toolbar)).setTitle(viewState.toString());
 
         new JobSchedulingManager().scheduleNextTextingJob(this);
+/*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener((View view) -> {
             if (viewState.equals(ApptViewState.TentativeAppts)) {
@@ -85,7 +113,6 @@ public class MainActivity extends AppCompatActivity {
 */
     }
 
-/*
     public ApptViewState getViewState() {
         return viewState;
     }
@@ -110,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+/*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

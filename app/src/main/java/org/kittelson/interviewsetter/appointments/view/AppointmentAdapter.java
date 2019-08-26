@@ -20,7 +20,7 @@ import org.kittelson.interviewsetter.ContactInfo;
 import org.kittelson.interviewsetter.appointments.Appointment;
 import org.kittelson.interviewsetter.appointments.AppointmentStage;
 import org.kittelson.interviewsetter.appointments.AppointmentType;
-import org.kittelson.interviewsetter2.R;
+import org.kittelson.interviewsetter.R;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

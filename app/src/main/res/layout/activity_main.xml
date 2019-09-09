@@ -11,7 +11,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
+-->
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+<!--
         <Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -37,9 +47,9 @@
                 android:text="@string/appts_to_confirm_text" />
 
         </TabLayout>
-
-    </com.google.android.material.appbar.AppBarLayout>
 -->
+
+<!--    </com.google.android.material.appbar.AppBarLayout>-->
 
     <include
         android:id="@+id/include"

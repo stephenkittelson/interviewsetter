@@ -159,8 +159,8 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-//            startActivity(new Intent(this, SettingsActivity.class));
-            Toast.makeText(this, "woohoo!", Toast.LENGTH_LONG).show();
+            startActivity(new Intent(this, SettingsActivity.class));
+//            Toast.makeText(this, "woohoo!", Toast.LENGTH_LONG).show();
             return true;
         }
 

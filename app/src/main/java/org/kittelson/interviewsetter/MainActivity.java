@@ -48,21 +48,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-/*
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.action_settings, new SettingsFragment())
-                .commit();
-*/
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
-
-/*
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-*/
 
         viewState = ApptViewState.TentativeAppts;
         appointmentView = (RecyclerView) findViewById(R.id.recycler_view);
@@ -152,15 +141,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             startActivity(new Intent(this, Settings3Activity.class));
-//            Toast.makeText(this, "woohoo!", Toast.LENGTH_LONG).show();
             return true;
         }
 

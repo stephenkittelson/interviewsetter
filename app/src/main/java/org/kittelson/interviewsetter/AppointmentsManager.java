@@ -2,7 +2,10 @@ package org.kittelson.interviewsetter;
 
 import android.accounts.Account;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
+
+import androidx.preference.PreferenceManager;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -12,6 +15,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 
+import org.apache.commons.lang3.StringUtils;
 import org.kittelson.interviewsetter.appointments.Appointment;
 import org.kittelson.interviewsetter.appointments.AppointmentStage;
 
@@ -49,8 +53,15 @@ public class AppointmentsManager {
         Sheets sheetsService = new Sheets.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), credential).setApplicationName("InterviewSetter").build();
         Spreadsheet response;
         List<Appointment> appointments = new LinkedList<>();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        if (!sharedPreferences.contains(context.getString(R.string.googleSheetId_key))
+                || StringUtils.isBlank(sharedPreferences.getString(context.getString(R.string.googleSheetId_key), ""))) {
+            // no Google sheet ID has been specified - can't retrieve appointments
+            return appointments;
+        }
         try {
-            response = sheetsService.spreadsheets().get(SPREADSHEET_ID).setRanges(Arrays.asList("'Upcoming Interviews'!A2:G100"))
+            response = sheetsService.spreadsheets().get(sharedPreferences.getString(context.getString(R.string.googleSheetId_key), ""))
+                    .setRanges(Arrays.asList("'Upcoming Interviews'!A2:G100"))
                     .setFields("sheets.data.rowData.values.effectiveValue").execute();
             List<Appointment> allAppointments = response.getSheets().stream()
                     .flatMap(sheet -> sheet.getData().stream()

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +23,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.kittelson.interviewsetter.appointments.Appointment;
 import org.kittelson.interviewsetter.appointments.view.AppointmentAdapter;
@@ -92,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
 //        ((Toolbar) findViewById(R.id.toolbar)).setTitle(viewState.toString());
 
         new JobSchedulingManager().scheduleNextTextingJob(this);
-/*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener((View view) -> {
             if (viewState.equals(ApptViewState.TentativeAppts)) {
@@ -100,11 +101,10 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 viewState = ApptViewState.TentativeAppts;
             }
-            ((Toolbar) findViewById(R.id.toolbar)).setTitle(viewState.toString());
+            ((Toolbar) findViewById(R.id.my_toolbar)).setTitle(viewState.toString());
             progressBar.setVisibility(ProgressBar.VISIBLE);
             new LoadApptList(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
         });
-*/
     }
 
     public ApptViewState getViewState() {

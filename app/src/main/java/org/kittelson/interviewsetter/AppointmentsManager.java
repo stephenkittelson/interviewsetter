@@ -26,13 +26,15 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class AppointmentsManager {
     private static final String CLASS_NAME = AppointmentsManager.class.getSimpleName();
     private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
 
-    public static final String SPREADSHEET_ID = "TODO";
+    private static Pattern spreadsheetIdPattern = Pattern.compile("^https://docs.google.com/spreadsheets/d/(?<sheetId>[-_a-zA-Z0-9]+)/.*$");
 
     public List<Appointment> getTentativeAppointments(Account account, Context context) {
         return getAppointments(account, appt -> appt.getTime().isBefore(LocalDateTime.now().plusDays(7))
@@ -53,14 +55,16 @@ public class AppointmentsManager {
         Sheets sheetsService = new Sheets.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), credential).setApplicationName("InterviewSetter").build();
         Spreadsheet response;
         List<Appointment> appointments = new LinkedList<>();
+        Matcher sheetIdMatcher;
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         if (!sharedPreferences.contains(context.getString(R.string.googleSheetId_key))
-                || StringUtils.isBlank(sharedPreferences.getString(context.getString(R.string.googleSheetId_key), ""))) {
+                || StringUtils.isBlank(sharedPreferences.getString(context.getString(R.string.googleSheetId_key), ""))
+                || !(sheetIdMatcher = spreadsheetIdPattern.matcher(sharedPreferences.getString(context.getString(R.string.googleSheetId_key), ""))).find()) {
             // no Google sheet ID has been specified - can't retrieve appointments
             return appointments;
         }
         try {
-            response = sheetsService.spreadsheets().get(sharedPreferences.getString(context.getString(R.string.googleSheetId_key), ""))
+            response = sheetsService.spreadsheets().get(sheetIdMatcher.group("sheetId"))
                     .setRanges(Arrays.asList("'Upcoming Interviews'!A2:G100"))
                     .setFields("sheets.data.rowData.values.effectiveValue").execute();
             List<Appointment> allAppointments = response.getSheets().stream()
@@ -98,7 +102,7 @@ public class AppointmentsManager {
             Log.v(CLASS_NAME, "appointments: " + appointments);
         } catch (UserRecoverableAuthIOException ex) {
             context.startActivity(ex.getIntent());
-        } catch (IOException e) {
+        } catch (Exception e) {
             Log.e(CLASS_NAME, "failure to get spreadsheet: " + e.getMessage(), e);
         }
         return appointments;

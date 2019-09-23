@@ -3,5 +3,6 @@
         <EditTextPreference
             app:key="@string/googleSheetId_key"
             app:title="@string/googleSheetId_title"
+            app:dialogMessage="Enter the URL of the Google Spreadsheet that contains the appointments. It should be something like: https://docs.google.com/spreadsheets/d/Yj_ggMmMgMjQgMDQgYTIgOWQ-gYTQgZGQgZDAgZDUgYT/edit?usp=sharing"
             app:useSimpleSummaryProvider="true" />
 </PreferenceScreen>

@@ -11,6 +11,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
@@ -19,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.kittelson.interviewsetter.appointments.Appointment;
 import org.kittelson.interviewsetter.appointments.AppointmentStage;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -102,8 +102,17 @@ public class AppointmentsManager {
             Log.v(CLASS_NAME, "appointments: " + appointments);
         } catch (UserRecoverableAuthIOException ex) {
             context.startActivity(ex.getIntent());
+        } catch (IllegalArgumentException ex) {
+            throw ex;
+        } catch (GoogleJsonResponseException ex) {
+            if (ex.getDetails().getCode() == 404) {
+                throw new IllegalArgumentException("Cannot find spreadsheet - invalid spreadsheet URL.");
+            }
+            Log.e(CLASS_NAME, "details: " + ex.getDetails());
+            throw new IllegalArgumentException("failed to load spreadsheet: " + ex.getMessage(), ex);
         } catch (Exception e) {
-            Log.e(CLASS_NAME, "failure to get spreadsheet: " + e.getMessage(), e);
+            Log.e(CLASS_NAME, "failure to get spreadsheet: " + e.getClass().getName() + ": " + e.getMessage(), e);
+            throw new IllegalArgumentException("failed to load spreadsheet: " + e.getMessage());
         }
         return appointments;
     }

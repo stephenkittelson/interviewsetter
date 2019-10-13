@@ -9,11 +9,18 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 public class SpreadsheetErrorDialogFragment extends DialogFragment {
+    private String message;
+
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("dis is da errorr");
+        builder.setMessage(message);
         return builder.create();
+    }
+
+    public SpreadsheetErrorDialogFragment setErrorMessage(String message) {
+        this.message = message;
+        return this;
     }
 }

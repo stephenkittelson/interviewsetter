@@ -116,7 +116,13 @@ public class MainActivity extends AppCompatActivity {
         Log.v(CLASS_NAME, "reloading appointments with " + newAppointments);
         appointmentAdapter.notifyDataSetChanged();
         progressBar.setVisibility(ProgressBar.INVISIBLE);
-        new SpreadsheetErrorDialogFragment().show(getSupportFragmentManager(), "da tag");
+    }
+
+    public void appointmentListLoadFailed(String message) {
+        appointmentAdapter.setAppointments(new LinkedList<>());
+        appointmentAdapter.notifyDataSetChanged();
+        progressBar.setVisibility(ProgressBar.INVISIBLE);
+        new SpreadsheetErrorDialogFragment().setErrorMessage(message).show(getSupportFragmentManager(), "da tag");
     }
 
     @Override

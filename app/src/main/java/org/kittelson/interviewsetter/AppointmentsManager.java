@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.common.util.CollectionUtils;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
@@ -99,6 +100,20 @@ public class AppointmentsManager {
                     appt.setDuplicate(true);
                 }
             }).filter(filter).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(appointments)) {
+                throw new IllegalArgumentException("Didn't find any matching rows. Expecting rows with the following columns: \n1st column: date of appointment\n"
+                + "2nd column: time of appointment\n3rd column: member of the presidency for the appointment\n4th column: type of appointment (one of Stewardship,\n" +
+                        "    Ministering,\n" +
+                        "    Chgs,\n" +
+                        "    CompChg,\n" +
+                        "    or Family)\n"
+                + "5th column: companionship formatted as \"Last name, first name / Last name, first name\" or family name formatted as \"Last name, first name of person to text & spouse's name\"\n"
+                + "6th column: location (only matters for ministering interviews)\n"
+                + "7th column: stage (one of InitialContact,\n" +
+                        "    AwaitingReply,\n" +
+                        "    Confirmed,\n" +
+                        "    Set)\n");
+            }
             Log.v(CLASS_NAME, "appointments: " + appointments);
         } catch (UserRecoverableAuthIOException ex) {
             context.startActivity(ex.getIntent());

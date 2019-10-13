@@ -107,6 +107,8 @@ public class AppointmentsManager {
         } catch (GoogleJsonResponseException ex) {
             if (ex.getDetails().getCode() == 404) {
                 throw new IllegalArgumentException("Cannot find spreadsheet - invalid spreadsheet URL.");
+            } else if (ex.getDetails().getCode() == 400) {
+                throw new IllegalArgumentException("Can't load spreadsheet: " + ex.getDetails().getMessage());
             }
             Log.e(CLASS_NAME, "details: " + ex.getDetails());
             throw new IllegalArgumentException("failed to load spreadsheet: " + ex.getMessage(), ex);

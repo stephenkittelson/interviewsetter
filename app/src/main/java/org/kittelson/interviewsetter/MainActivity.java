@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private static String CLASS_NAME = MainActivity.class.getSimpleName();
 
     private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
+    private static final String IS_LICENSE_AGREED = "IsLicenseAgreed";
 
     private static int RC_SIGN_IN = 9001;
 
@@ -45,12 +46,27 @@ public class MainActivity extends AppCompatActivity {
     private List<Appointment> appointments;
     private ApptViewState viewState;
     private ProgressBar progressBar;
+    private boolean agreedToLicense;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        agreedToLicense = false;
+        if (savedInstanceState != null) {
+            agreedToLicense = savedInstanceState.getBoolean(IS_LICENSE_AGREED);
+        }
+
+        if (!agreedToLicense) {
+            new LicenseAgreementDialogFragment(this).show(getSupportFragmentManager(), "da tag 2");
+            return;
+        } else {
+            setupScreen();
+        }
+    }
+
+    private void setupScreen() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
 
@@ -156,5 +172,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putBoolean(IS_LICENSE_AGREED, agreedToLicense);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    public void acceptAgreement() {
+        agreedToLicense = true;
+        setupScreen();
+    }
+
+    public void rejectAgreement() {
+        finish();
     }
 }

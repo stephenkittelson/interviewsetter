@@ -4,6 +4,9 @@
     <string name="pref_title_sheet_id">Google Sheet URL</string>
     <string name="pref_default_display_name">John Smith</string>
 
+    <string name="accept_license">Accept</string>
+    <string name="decline_license">Decline</string>
+
     <string name="title_activity_settings">Settings</string>
     <string name="googleSheetId_title">Google Sheet URL</string>
     <string name="googleSheetId_key">googleSheetId</string>

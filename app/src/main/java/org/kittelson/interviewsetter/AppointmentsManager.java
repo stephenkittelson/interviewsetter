@@ -101,7 +101,7 @@ public class AppointmentsManager {
                 }
             }).filter(filter).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(appointments)) {
-                throw new IllegalArgumentException("Didn't find any matching rows. Expecting rows with the following columns: \n1st column: date of appointment\n"
+                throw new IllegalArgumentException("Didn't find any matching rows. Expecting rows with the following columns in sheet named 'Upcoming Interviews': \n1st column: date of appointment\n"
                 + "2nd column: time of appointment\n3rd column: member of the presidency for the appointment\n4th column: type of appointment (one of Stewardship,\n" +
                         "    Ministering,\n" +
                         "    Chgs,\n" +

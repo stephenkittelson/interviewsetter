@@ -96,10 +96,6 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, 1);
         }
 
-        if (ContextCompat.checkSelfPermission(this, "android.permission.READ_CONTACTS") == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, 1);
-        }
-
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestScopes(new Scope(SPREADSHEETS_SCOPE))
                 .requestEmail()

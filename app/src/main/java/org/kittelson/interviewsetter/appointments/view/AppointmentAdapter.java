@@ -1,6 +1,8 @@
 package org.kittelson.interviewsetter.appointments.view;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
@@ -12,6 +14,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -63,8 +67,7 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
 
     private void openTextMsg(Appointment appointment, List<ContactInfo> allContactInfo) {
         if (allContactInfo.size() == 0) {
-            // TODO this doesn't work
-            Toast.makeText(fragmentActivity, "No phone numbers for companionship", Toast.LENGTH_LONG);
+            Toast.makeText(fragmentActivity, "No phone numbers for companionship", Toast.LENGTH_LONG).show();
         } else {
             String msg = "";
             if (!appointment.getStage().equals(AppointmentStage.Confirmed) && !appointment.getStage().equals(AppointmentStage.Set)) {
@@ -109,22 +112,26 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
 
     @NonNull
     private List<ContactInfo> getContactInfo(Appointment appointment) {
-        Cursor cursor = fragmentActivity.getContentResolver().query(
-                ContactsContract.Data.CONTENT_URI,
-                new String[]{
-                        ContactsContract.CommonDataKinds.StructuredName.SORT_KEY_PRIMARY,
-                        ContactsContract.CommonDataKinds.Phone.NUMBER
-                },
-                ContactsContract.Contacts.DISPLAY_NAME + " in (" + StringUtils.repeat("?", ",", appointment.getCompanions().size()) + ") AND " + ContactsContract.Data.MIMETYPE + " = '" + ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'",
-                appointment.getCompanions().toArray(new String[]{}),
-                null);
         List<ContactInfo> allContactInfo = new LinkedList<>();
-        while (cursor.moveToNext()) {
-            ContactInfo contactInfo = new ContactInfo(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.SORT_KEY_PRIMARY)),
-                    cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
-            allContactInfo.add(contactInfo);
+        if (ContextCompat.checkSelfPermission(fragmentActivity, "android.permission.READ_CONTACTS") == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(fragmentActivity, new String[]{Manifest.permission.READ_CONTACTS}, 1);
+        } else {
+            Cursor cursor = fragmentActivity.getContentResolver().query(
+                    ContactsContract.Data.CONTENT_URI,
+                    new String[]{
+                            ContactsContract.CommonDataKinds.StructuredName.SORT_KEY_PRIMARY,
+                            ContactsContract.CommonDataKinds.Phone.NUMBER
+                    },
+                    ContactsContract.Contacts.DISPLAY_NAME + " in (" + StringUtils.repeat("?", ",", appointment.getCompanions().size()) + ") AND " + ContactsContract.Data.MIMETYPE + " = '" + ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'",
+                    appointment.getCompanions().toArray(new String[]{}),
+                    null);
+            while (cursor.moveToNext()) {
+                ContactInfo contactInfo = new ContactInfo(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.SORT_KEY_PRIMARY)),
+                        cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+                allContactInfo.add(contactInfo);
+            }
+            cursor.close();
         }
-        cursor.close();
         return allContactInfo;
     }
 

@@ -16,6 +16,7 @@ public class SpreadsheetErrorDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(message);
+        builder.setNeutralButton(R.string.ok, null);
         return builder.create();
     }
 

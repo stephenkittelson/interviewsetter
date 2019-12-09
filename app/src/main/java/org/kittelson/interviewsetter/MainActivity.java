@@ -84,10 +84,6 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
         appointmentAdapter = new AppointmentAdapter(this, appointments, appointmentView);
         appointmentView.setAdapter(appointmentAdapter);
 
-        if (ContextCompat.checkSelfPermission(this, "android.permission.SEND_SMS") == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, 1);
-        }
-
         if (ContextCompat.checkSelfPermission(this, "android.permission.RECEIVE_BOOT_COMPLETED") == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECEIVE_BOOT_COMPLETED}, 1);
         }

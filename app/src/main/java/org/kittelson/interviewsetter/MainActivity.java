@@ -14,8 +14,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -27,11 +30,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.kittelson.interviewsetter.appointments.Appointment;
 import org.kittelson.interviewsetter.appointments.view.AppointmentAdapter;
+import org.kittelson.interviewsetter.persistence.GeneralData;
+import org.kittelson.interviewsetter.persistence.GeneralDatabase;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Observer<GeneralData> {
     private static String CLASS_NAME = MainActivity.class.getSimpleName();
 
     private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -47,22 +52,23 @@ public class MainActivity extends AppCompatActivity {
     private ApptViewState viewState;
     private ProgressBar progressBar;
     private boolean agreedToLicense;
+    private GeneralDatabase generalDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        generalDatabase = Room.databaseBuilder(getApplicationContext(), GeneralDatabase.class, "general-data").build();
         agreedToLicense = false;
         if (savedInstanceState != null) {
             agreedToLicense = savedInstanceState.getBoolean(IS_LICENSE_AGREED);
         }
-
         if (!agreedToLicense) {
-            new LicenseAgreementDialogFragment(this).show(getSupportFragmentManager(), "da tag 2");
-            return;
-        } else {
-            setupScreen();
+            LiveData<GeneralData> generalData = generalDatabase.generalDataDao().load();
+            generalData.observe(this, this);
+            progressBar.setVisibility(ProgressBar.VISIBLE);
         }
     }
 
@@ -100,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         googleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
         if (GoogleSignIn.getLastSignedInAccount(this) == null) {
             startActivityForResult(googleSignInClient.getSignInIntent(), RC_SIGN_IN);
         } else {
@@ -182,10 +187,25 @@ public class MainActivity extends AppCompatActivity {
 
     public void acceptAgreement() {
         agreedToLicense = true;
+        new Thread(() -> {
+            generalDatabase.generalDataDao().save(new GeneralData(true));
+        }).start();
         setupScreen();
     }
 
     public void rejectAgreement() {
         finish();
+    }
+
+    @Override
+    public void onChanged(GeneralData generalData) {
+        Log.v(CLASS_NAME, "value changed to " + generalData.acceptedLicense);
+        progressBar.setVisibility(ProgressBar.INVISIBLE);
+        agreedToLicense = generalData.acceptedLicense;
+        if (!agreedToLicense) {
+            new LicenseAgreementDialogFragment(this).show(getSupportFragmentManager(), "da tag 2");
+        } else {
+            setupScreen();
+        }
     }
 }

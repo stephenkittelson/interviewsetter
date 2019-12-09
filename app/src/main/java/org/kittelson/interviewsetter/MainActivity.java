@@ -199,7 +199,6 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
 
     @Override
     public void onChanged(GeneralData generalData) {
-        Log.v(CLASS_NAME, "value changed to " + generalData.acceptedLicense);
         progressBar.setVisibility(ProgressBar.INVISIBLE);
         agreedToLicense = generalData.acceptedLicense;
         if (!agreedToLicense) {

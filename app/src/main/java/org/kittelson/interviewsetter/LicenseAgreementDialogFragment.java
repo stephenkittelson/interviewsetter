@@ -9,7 +9,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 public class LicenseAgreementDialogFragment extends DialogFragment {
-    private String message = "Last updated 2019-12-08.\n" +
+    private String message = "Last updated 2019-12-15.\n" +
             "\n" +
             "BSD 2-Clause License\n" +
             "\n" +
@@ -40,7 +40,9 @@ public class LicenseAgreementDialogFragment extends DialogFragment {
             "\n" +
             "Privacy Policy\n" +
             "\n" +
-            "This app searches your contacts for matches to the names read from the spreadsheet you configure it to read, and sets up a text message to those contacts via your default or chosen SMS app. It does not store any information in a persistent way, nor does it transmit any data to any other device or server.\n";
+            "This app searches your contacts for matches to the names read from the spreadsheet you configure it to read, and sets up a text message to those contacts via your default or chosen SMS app. It does not store any information in a persistent way, nor does it transmit any data to any other device or server.\n" +
+            "\n" +
+            "Copyright notice: this app uses Material icons, copyright: Google.";
 
     private MainActivity mainActivity;
 

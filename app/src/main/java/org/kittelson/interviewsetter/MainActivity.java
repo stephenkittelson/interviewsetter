@@ -116,7 +116,11 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
             }
             ((Toolbar) findViewById(R.id.my_toolbar)).setTitle(viewState.toString());
             progressBar.setVisibility(ProgressBar.VISIBLE);
-            new LoadApptList(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
+            if (GoogleSignIn.getLastSignedInAccount(this) != null) {
+                new LoadApptList(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
+            } else {
+                startActivityForResult(googleSignInClient.getSignInIntent(), RC_SIGN_IN);
+            }
         });
     }
 

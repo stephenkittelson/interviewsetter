@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
     @Override
     public void onChanged(GeneralData generalData) {
         progressBar.setVisibility(ProgressBar.INVISIBLE);
-        agreedToLicense = generalData.acceptedLicense;
+        agreedToLicense = generalData != null ? generalData.acceptedLicense : false;
         if (!agreedToLicense) {
             new LicenseAgreementDialogFragment(this).show(getSupportFragmentManager(), "da tag 2");
         } else {

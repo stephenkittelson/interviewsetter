@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -83,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
         appointments = new LinkedList<>();
         appointmentAdapter = new AppointmentAdapter(this, appointments, appointmentView);
         appointmentView.setAdapter(appointmentAdapter);
+        registerForContextMenu(appointmentView);
 
         if (ContextCompat.checkSelfPermission(this, "android.permission.RECEIVE_BOOT_COMPLETED") == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECEIVE_BOOT_COMPLETED}, 1);
@@ -122,6 +125,24 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
                 startActivityForResult(googleSignInClient.getSignInIntent(), RC_SIGN_IN);
             }
         });
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.setHeaderTitle("Text individuals");
+        menu.add(Menu.NONE, 1, Menu.NONE, "Smith, Donny");
+        menu.add(Menu.NONE, 2, Menu.NONE, "Doe, Susan");
+        // TODO store the appointment separately for use after clicking
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        item.getTitle();
+        // TODO use stored appointment to populate text message
+//        return super.onContextItemSelected(item);
+        return false;
     }
 
     public ApptViewState getViewState() {

@@ -129,7 +129,7 @@ public class AppointmentsManager {
             throw new IllegalArgumentException("failed to load spreadsheet: " + ex.getMessage(), ex);
         } catch (Exception e) {
             Log.e(CLASS_NAME, "failure to get spreadsheet: " + e.getClass().getName() + ": " + e.getMessage(), e);
-            throw new IllegalArgumentException("failed to load spreadsheet: " + e.getMessage());
+            throw new IllegalArgumentException("failed to load spreadsheet: " + e.getMessage(), e);
         }
         return appointments;
     }

@@ -1,6 +1,7 @@
 package org.kittelson.interviewsetter2;
 
 import org.junit.Test;
+import org.kittelson.interviewsetter.JobSchedulingManager;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -10,9 +11,9 @@ import static org.junit.Assert.assertEquals;
 public class JobSchedulingManagerTest {
     @Test
     public void monday_tuesday1900() {
-        assertEquals(ZonedDateTime.of(2018, 12, 25, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 24, 19, 0, 0, 0, ZoneId.systemDefault())).getWindowStart());
-        assertEquals(ZonedDateTime.of(2018, 12, 25, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 24, 19, 1, 0, 0, ZoneId.systemDefault())).getWindowStart());
-        assertEquals(ZonedDateTime.of(2018, 12, 25, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 24, 20, 19, 0, 0, ZoneId.systemDefault())).getWindowStart());
+        assertEquals(ZonedDateTime.of(2018, 12, 24, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 24, 19, 0, 0, 0, ZoneId.systemDefault())).getWindowStart());
+        assertEquals(ZonedDateTime.of(2018, 12, 24, 19, 1, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 24, 19, 1, 0, 0, ZoneId.systemDefault())).getWindowStart());
+        assertEquals(ZonedDateTime.of(2018, 12, 24, 20, 19, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 24, 20, 19, 0, 0, ZoneId.systemDefault())).getWindowStart());
         assertEquals(ZonedDateTime.of(2018, 12, 25, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 24, 20, 20, 0, 0, ZoneId.systemDefault())).getWindowStart());
         assertEquals(ZonedDateTime.of(2018, 12, 25, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 24, 20, 21, 0, 0, ZoneId.systemDefault())).getWindowStart());
         assertEquals(ZonedDateTime.of(2018, 12, 25, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 24, 21, 0, 0, 0, ZoneId.systemDefault())).getWindowStart());
@@ -62,14 +63,14 @@ public class JobSchedulingManagerTest {
         assertEquals(ZonedDateTime.of(2018, 12, 29, 15, 40, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 29, 15, 40, 0, 0, ZoneId.systemDefault())).getWindowStart());
         assertEquals(ZonedDateTime.of(2018, 12, 29, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 29, 19, 0, 0, 0, ZoneId.systemDefault())).getWindowStart());
 
-        assertEquals(ZonedDateTime.of(2019, 1, 1, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 29, 20, 20, 0, 0, ZoneId.systemDefault())).getWindowStart());
-        assertEquals(ZonedDateTime.of(2019, 1, 1, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 29, 21, 18, 0, 0, ZoneId.systemDefault())).getWindowStart());
+        assertEquals(ZonedDateTime.of(2018, 12, 31, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 29, 20, 20, 0, 0, ZoneId.systemDefault())).getWindowStart());
+        assertEquals(ZonedDateTime.of(2018, 12, 31, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 29, 21, 18, 0, 0, ZoneId.systemDefault())).getWindowStart());
     }
 
     @Test
     public void sunday_tuesday1900() {
-        assertEquals(ZonedDateTime.of(2019, 1, 1, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 30, 13, 0, 0, 0, ZoneId.systemDefault())).getWindowStart());
-        assertEquals(ZonedDateTime.of(2019, 1, 1, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 30, 20, 0, 0, 0, ZoneId.systemDefault())).getWindowStart());
-        assertEquals(ZonedDateTime.of(2019, 1, 1, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 30, 23, 0, 0, 0, ZoneId.systemDefault())).getWindowStart());
+        assertEquals(ZonedDateTime.of(2018, 12, 31, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 30, 13, 0, 0, 0, ZoneId.systemDefault())).getWindowStart());
+        assertEquals(ZonedDateTime.of(2018, 12, 31, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 30, 20, 0, 0, 0, ZoneId.systemDefault())).getWindowStart());
+        assertEquals(ZonedDateTime.of(2018, 12, 31, 19, 0, 0, 0, ZoneId.systemDefault()), new JobSchedulingManager().getNextJobWindow(ZonedDateTime.of(2018, 12, 30, 23, 0, 0, 0, ZoneId.systemDefault())).getWindowStart());
     }
 }

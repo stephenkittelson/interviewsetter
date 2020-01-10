@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 public class AppointmentsManager {
     private static final String CLASS_NAME = AppointmentsManager.class.getSimpleName();
-    private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
+    private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
 
     private static Pattern spreadsheetIdPattern = Pattern.compile("^https://docs.google.com/spreadsheets/d/(?<sheetId>[-_a-zA-Z0-9]+)/.*$");
 

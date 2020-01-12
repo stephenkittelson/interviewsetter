@@ -3,6 +3,8 @@ package org.kittelson.interviewsetter;
 import android.accounts.Account;
 import android.os.AsyncTask;
 
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+
 import org.kittelson.interviewsetter.appointments.Appointment;
 
 import java.util.LinkedList;
@@ -30,6 +32,8 @@ public class LoadApptList extends AsyncTask<Account, Void, List<Appointment>> {
             }
         } catch (IllegalArgumentException ex) {
             spreadsheetException = ex;
+        } catch (UserRecoverableAuthIOException ex) {
+            // auth fix would have already been triggered - should never actually get here
         }
         return appointments;
     }

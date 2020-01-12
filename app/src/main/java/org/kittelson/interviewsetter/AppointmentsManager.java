@@ -37,20 +37,20 @@ public class AppointmentsManager {
 
     private static Pattern spreadsheetIdPattern = Pattern.compile("^https://docs.google.com/spreadsheets/d/(?<sheetId>[-_a-zA-Z0-9]+)/.*$");
 
-    public List<Appointment> getTentativeAppointments(Account account, Context context) {
+    public List<Appointment> getTentativeAppointments(Account account, Context context) throws UserRecoverableAuthIOException {
         return getAppointments(account, appt -> appt.getTime().isBefore(LocalDateTime.now().plusDays(7))
                 && !appt.getStage().equals(AppointmentStage.Confirmed)
                 && !appt.getStage().equals(AppointmentStage.Set), context);
     }
 
-    public List<Appointment> getAppointmentsToConfirm(Context context) {
+    public List<Appointment> getAppointmentsToConfirm(Context context) throws UserRecoverableAuthIOException {
         return getAppointments(GoogleSignIn.getLastSignedInAccount(context).getAccount(),
                 appt -> appt.getTime().isBefore(LocalDateTime.now().plusDays(1).withHour(23))
                         && appt.getStage().equals(AppointmentStage.Set),
                 context);
     }
 
-    public List<Appointment> getAppointments(Account account, Predicate<Appointment> filter, Context context) {
+    public List<Appointment> getAppointments(Account account, Predicate<Appointment> filter, Context context) throws UserRecoverableAuthIOException {
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(context, Collections.singleton(SPREADSHEETS_SCOPE));
         credential.setSelectedAccount(account);
         Sheets sheetsService = new Sheets.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), credential).setApplicationName("InterviewSetter").build();
@@ -116,7 +116,11 @@ public class AppointmentsManager {
             }
             Log.v(CLASS_NAME, "appointments: " + appointments);
         } catch (UserRecoverableAuthIOException ex) {
-            context.startActivity(ex.getIntent());
+            if (context instanceof MainActivity) {
+                context.startActivity(ex.getIntent());
+            } else {
+                throw ex;
+            }
         } catch (IllegalArgumentException ex) {
             throw ex;
         } catch (GoogleJsonResponseException ex) {

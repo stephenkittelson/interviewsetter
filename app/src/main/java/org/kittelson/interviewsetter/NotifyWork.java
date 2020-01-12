@@ -8,6 +8,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 
 public class NotifyWork extends AsyncTask<Void, Void, Void> {
     private static String CLASS_NAME = NotifyWork.class.getSimpleName();
@@ -27,40 +28,33 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... ignored) {
         AppointmentsManager appointmentsManager = new AppointmentsManager();
         if (GoogleSignIn.getLastSignedInAccount(context) == null) {
-            NotificationManagerCompat.from(context).notify(ERROR_NOTIFICATION, new NotificationCompat.Builder(context, SEND_TEXTS_NOTIF_CHANNEL)
-                    .setSmallIcon(android.R.drawable.ic_menu_send)
-                    .setContentTitle("Set appointments")
-                    .setContentText("Time to setup appointments - probably. Error getting last signed on Google Account.")
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setAutoCancel(true)
-                    .setContentIntent(PendingIntent.getActivity(context, ERROR_NOTIFICATION, new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT))
-                    .build());
+            notify(ERROR_NOTIFICATION, "Set appointments", "Time to setup appointments - probably. Error getting last signed on Google Account.");
         }
 
-        if (appointmentsManager.getTentativeAppointments(GoogleSignIn.getLastSignedInAccount(context).getAccount(), context).size() > 0) {
-            NotificationManagerCompat.from(context).notify(SET_APPTS_NOTIFICATION, new NotificationCompat.Builder(context, SEND_TEXTS_NOTIF_CHANNEL)
-                    .setSmallIcon(android.R.drawable.ic_menu_send)
-                    .setContentTitle("Set appointments")
-                    .setContentText("Time to setup appointments")
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setAutoCancel(true)
-                    .setContentIntent(PendingIntent.getActivity(context, SET_APPTS_NOTIFICATION, new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT))
-                    .build());
-        }
+        try {
+            if (appointmentsManager.getTentativeAppointments(GoogleSignIn.getLastSignedInAccount(context).getAccount(), context).size() > 0) {
+                notify(SET_APPTS_NOTIFICATION, "Set appointments", "Time to setup appointments");
+            }
 
-        if (appointmentsManager.getAppointmentsToConfirm(context).size() > 0) {
-            NotificationManagerCompat.from(context).notify(CONFIRM_APPTS_NOTIFICATION, new NotificationCompat.Builder(context, SEND_TEXTS_NOTIF_CHANNEL)
-                    .setSmallIcon(android.R.drawable.ic_menu_send)
-                    .setContentTitle("Confirm appointments")
-                    .setContentText("Time to confirm appointments")
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setAutoCancel(true)
-                    // TODO send view state to main activity
-                    .setContentIntent(PendingIntent.getActivity(context, CONFIRM_APPTS_NOTIFICATION, new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT))
-                    .build());
+            if (appointmentsManager.getAppointmentsToConfirm(context).size() > 0) {
+                notify(CONFIRM_APPTS_NOTIFICATION, "Confirm appointments", "Time to confirm appointments");
+            }
+        } catch (UserRecoverableAuthIOException ex) {
+            notify(ERROR_NOTIFICATION, "Set appointments", "Time to setup appointments - probably. Error getting access to spreadsheet.");
         }
         context.finishJob();
         return null;
+    }
+
+    private void notify(int errorNotification, String s, String s2) {
+        NotificationManagerCompat.from(context).notify(errorNotification, new NotificationCompat.Builder(context, SEND_TEXTS_NOTIF_CHANNEL)
+                .setSmallIcon(android.R.drawable.ic_menu_send)
+                .setContentTitle(s)
+                .setContentText(s2)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .setContentIntent(PendingIntent.getActivity(context, errorNotification, new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT))
+                .build());
     }
 
 

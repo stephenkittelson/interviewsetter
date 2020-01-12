@@ -46,11 +46,11 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
         return null;
     }
 
-    private void notify(int errorNotification, String s, String s2) {
+    private void notify(int errorNotification, String title, String text) {
         NotificationManagerCompat.from(context).notify(errorNotification, new NotificationCompat.Builder(context, SEND_TEXTS_NOTIF_CHANNEL)
                 .setSmallIcon(android.R.drawable.ic_menu_send)
-                .setContentTitle(s)
-                .setContentText(s2)
+                .setContentTitle(title)
+                .setContentText(text)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .setContentIntent(PendingIntent.getActivity(context, errorNotification, new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT))

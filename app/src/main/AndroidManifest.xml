@@ -15,7 +15,6 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity
             android:name=".DisplayTextActivity"
-            android:label="@string/title_activity_display_text"
             android:parentActivityName=".MainActivity"
             android:theme="@style/NoActionBar">
             <meta-data

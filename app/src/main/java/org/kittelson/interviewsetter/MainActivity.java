@@ -170,6 +170,16 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
         if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
+        } else if (id == R.id.action_tos) {
+            Intent termsOfServiceIntent = new Intent(this, DisplayTextActivity.class);
+            termsOfServiceIntent.putExtra(DisplayTextActivity.CONTENT_KEY, LicenseAgreementDialogFragment.TERMS_OF_SERVICE);
+            termsOfServiceIntent.putExtra(DisplayTextActivity.TITLE_KEY, "Terms of Service");
+            startActivity(termsOfServiceIntent);
+        } else if (id == R.id.action_privacy) {
+            Intent privacyPolicyIntent = new Intent(this, DisplayTextActivity.class);
+            privacyPolicyIntent.putExtra(DisplayTextActivity.CONTENT_KEY, LicenseAgreementDialogFragment.PRIVACY_POLICY);
+            privacyPolicyIntent.putExtra(DisplayTextActivity.TITLE_KEY, "Privacy Policy");
+            startActivity(privacyPolicyIntent);
         }
 
         return super.onOptionsItemSelected(item);

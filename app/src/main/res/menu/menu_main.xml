@@ -8,4 +8,14 @@
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_tos"
+        android:orderInCategory="101"
+        android:title="@string/action_tos"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_privacy"
+        android:orderInCategory="102"
+        android:title="@string/action_privacy"
+        app:showAsAction="never" />
 </menu>

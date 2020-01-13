@@ -28,7 +28,7 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... ignored) {
         AppointmentsManager appointmentsManager = new AppointmentsManager();
         if (GoogleSignIn.getLastSignedInAccount(context) == null) {
-            notify(ERROR_NOTIFICATION, "Set appointments", "Time to setup appointments - probably. Error getting last signed on Google Account.");
+            notify(ERROR_NOTIFICATION, "Set/confirm appointments", "Time to setup/confirm appointments - probably. Error getting last signed on Google Account.");
         }
 
         try {
@@ -40,7 +40,7 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
                 notify(CONFIRM_APPTS_NOTIFICATION, "Confirm appointments", "Time to confirm appointments");
             }
         } catch (UserRecoverableAuthIOException ex) {
-            notify(ERROR_NOTIFICATION, "Set appointments", "Time to setup appointments - probably. Error getting access to spreadsheet.");
+            notify(ERROR_NOTIFICATION, "Set/confirm appointments", "Time to setup/confirm appointments - probably. Error getting access to spreadsheet.");
         }
         context.finishJob();
         return null;

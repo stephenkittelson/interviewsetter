@@ -31,16 +31,30 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
             notify(ERROR_NOTIFICATION, "Set/confirm appointments", "Time to setup/confirm appointments - probably. Error getting last signed on Google Account.");
         }
 
+        boolean notifiedUser = false;
         try {
-            if (appointmentsManager.getTentativeAppointments(GoogleSignIn.getLastSignedInAccount(context).getAccount(), context).size() > 0) {
-                notify(SET_APPTS_NOTIFICATION, "Set appointments", "Time to setup appointments");
+            try {
+                if (appointmentsManager.getTentativeAppointments(GoogleSignIn.getLastSignedInAccount(context).getAccount(), context).size() > 0) {
+                    notify(SET_APPTS_NOTIFICATION, "Set appointments", "Time to setup appointments");
+                    notifiedUser = true;
+                }
+            } catch (IllegalArgumentException ignored2) {
+                // can't notify the user, ignore it
             }
 
-            if (appointmentsManager.getAppointmentsToConfirm(context).size() > 0) {
-                notify(CONFIRM_APPTS_NOTIFICATION, "Confirm appointments", "Time to confirm appointments");
+            try {
+                if (appointmentsManager.getAppointmentsToConfirm(context).size() > 0) {
+                    notify(CONFIRM_APPTS_NOTIFICATION, "Confirm appointments", "Time to confirm appointments");
+                    notifiedUser = true;
+                }
+            } catch (IllegalArgumentException ignored2) {
+                // can't notify the user, ignore it
             }
         } catch (UserRecoverableAuthIOException ex) {
-            notify(ERROR_NOTIFICATION, "Set/confirm appointments", "Time to setup/confirm appointments - probably. Error getting access to spreadsheet.");
+            // we'll notify them below
+        }
+        if (!notifiedUser) {
+            notify(ERROR_NOTIFICATION, "Set/confirm appointments", "Time to setup/confirm appointments - probably. Error loading spreadsheet.");
         }
         context.finishJob();
         return null;

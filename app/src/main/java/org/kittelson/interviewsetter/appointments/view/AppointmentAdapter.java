@@ -79,7 +79,6 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
                     msg = "Could you guys meet with a member of the EQ presidency for a ministering interview ";
                 } else if (appointment.getCompanions().size() > 1) {
                     String nameMissingPhoneNum = getNameMissingPhoneNum(appointment, allContactInfo);
-                    Log.v(CLASS_NAME, "Missing phone number for " + nameMissingPhoneNum + ", companions: " + appointment.getCompanions() + ", contact info: " + allContactInfo);
                     msg = "Could you and " + nameMissingPhoneNum + " meet with a member of the EQ presidency for a ministering interview ";
                 } else {
                     msg = "Could you meet with a member of the EQ presidency for a ministering interview ";

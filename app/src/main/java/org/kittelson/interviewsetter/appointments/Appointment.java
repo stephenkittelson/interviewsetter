@@ -65,7 +65,7 @@ public class Appointment {
         } else if (oneCompanionMatcher.find()) {
             this.companions.add(oneCompanionMatcher.group(2) + " " + oneCompanionMatcher.group(1));
         } else {
-            Log.w(CLASS_NAME, "skipping unknown companion format: " + companions);
+            // unknown companion format - skipping
         }
         return this;
     }

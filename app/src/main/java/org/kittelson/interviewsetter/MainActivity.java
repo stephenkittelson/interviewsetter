@@ -130,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
 
     public void setAppointmentList(List<Appointment> newAppointments) {
         appointmentAdapter.setAppointments(newAppointments);
-        Log.v(CLASS_NAME, "reloading appointments with " + newAppointments);
         appointmentAdapter.notifyDataSetChanged();
         progressBar.setVisibility(ProgressBar.INVISIBLE);
     }

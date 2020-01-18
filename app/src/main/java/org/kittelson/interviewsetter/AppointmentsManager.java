@@ -96,7 +96,6 @@ public class AppointmentsManager {
                         && appt.getCompanions().containsAll(subAppt.getCompanions())
                         && subAppt.getCompanions().containsAll(appt.getCompanions())
                         && !appt.getTime().equals(subAppt.getTime())).findAny().isPresent()) {
-                    Log.v(CLASS_NAME, "found duplicate: " + appt);
                     appt.setDuplicate(true);
                 }
             }).filter(filter).collect(Collectors.toList());
@@ -114,7 +113,6 @@ public class AppointmentsManager {
                         "    Confirmed,\n" +
                         "    Set)\n");
             }
-            Log.v(CLASS_NAME, "appointments: " + appointments);
         } catch (UserRecoverableAuthIOException ex) {
             if (context instanceof MainActivity) {
                 context.startActivity(ex.getIntent());

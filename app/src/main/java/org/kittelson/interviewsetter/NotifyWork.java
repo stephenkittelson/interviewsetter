@@ -8,6 +8,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 
 public class NotifyWork extends AsyncTask<Void, Void, Void> {
     private static String CLASS_NAME = NotifyWork.class.getSimpleName();
@@ -15,6 +16,7 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
     public static final String SEND_TEXTS_NOTIF_CHANNEL = "sendTexts";
     private static final int SET_APPTS_NOTIFICATION = 0;
     private static final int CONFIRM_APPTS_NOTIFICATION = 1;
+    private static final int ERROR_NOTIFICATION = 3;
 
     private TextingService context;
 
@@ -25,30 +27,50 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... ignored) {
         AppointmentsManager appointmentsManager = new AppointmentsManager();
-        if (appointmentsManager.getTentativeAppointments(GoogleSignIn.getLastSignedInAccount(context).getAccount(), context).size() > 0) {
-            NotificationManagerCompat.from(context).notify(SET_APPTS_NOTIFICATION, new NotificationCompat.Builder(context, SEND_TEXTS_NOTIF_CHANNEL)
-                    .setSmallIcon(android.R.drawable.ic_menu_send)
-                    .setContentTitle("Set appointments")
-                    .setContentText("Time to setup appointments")
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setAutoCancel(true)
-                    .setContentIntent(PendingIntent.getActivity(context, SET_APPTS_NOTIFICATION, new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT))
-                    .build());
+        if (GoogleSignIn.getLastSignedInAccount(context) == null) {
+            notify(ERROR_NOTIFICATION, "Set/confirm appointments", "Time to setup/confirm appointments - probably. Error getting last signed on Google Account.");
+            context.finishJob();
+            return null;
         }
 
-        if (appointmentsManager.getAppointmentsToConfirm(context).size() > 0) {
-            NotificationManagerCompat.from(context).notify(CONFIRM_APPTS_NOTIFICATION, new NotificationCompat.Builder(context, SEND_TEXTS_NOTIF_CHANNEL)
-                    .setSmallIcon(android.R.drawable.ic_menu_send)
-                    .setContentTitle("Confirm appointments")
-                    .setContentText("Time to confirm appointments")
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setAutoCancel(true)
-                    // TODO send view state to main activity
-                    .setContentIntent(PendingIntent.getActivity(context, CONFIRM_APPTS_NOTIFICATION, new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT))
-                    .build());
+        boolean notifiedUser = false;
+        try {
+            try {
+                if (appointmentsManager.getTentativeAppointments(GoogleSignIn.getLastSignedInAccount(context).getAccount(), context).size() > 0) {
+                    notify(SET_APPTS_NOTIFICATION, "Set appointments", "Time to setup appointments");
+                    notifiedUser = true;
+                }
+            } catch (IllegalArgumentException ignored2) {
+                // can't notify the user, ignore it
+            }
+
+            try {
+                if (appointmentsManager.getAppointmentsToConfirm(context).size() > 0) {
+                    notify(CONFIRM_APPTS_NOTIFICATION, "Confirm appointments", "Time to confirm appointments");
+                    notifiedUser = true;
+                }
+            } catch (IllegalArgumentException ignored2) {
+                // can't notify the user, ignore it
+            }
+        } catch (UserRecoverableAuthIOException ex) {
+            // we'll notify them below
+        }
+        if (!notifiedUser) {
+            notify(ERROR_NOTIFICATION, "Set/confirm appointments", "Time to setup/confirm appointments - probably. Error loading spreadsheet.");
         }
         context.finishJob();
         return null;
+    }
+
+    private void notify(int errorNotification, String title, String text) {
+        NotificationManagerCompat.from(context).notify(errorNotification, new NotificationCompat.Builder(context, SEND_TEXTS_NOTIF_CHANNEL)
+                .setSmallIcon(android.R.drawable.ic_menu_send)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .setContentIntent(PendingIntent.getActivity(context, errorNotification, new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT))
+                .build());
     }
 
 

@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.kittelson.interviewsetter">
 
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/interview_setter_icon_512"
@@ -9,6 +13,14 @@
         android:roundIcon="@drawable/interview_setter_icon_512"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity
+            android:name=".DisplayTextActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.kittelson.interviewsetter.MainActivity" />
+        </activity>
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
@@ -39,9 +51,5 @@
             android:name=".TextingService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
-    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>

@@ -9,7 +9,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 public class LicenseAgreementDialogFragment extends DialogFragment {
-    private String message = "Last updated 2019-12-15.\n" +
+    public static final String TERMS_OF_SERVICE = "Last updated 2019-12-15.\n" +
             "\n" +
             "BSD 2-Clause License\n" +
             "\n" +
@@ -37,12 +37,11 @@ public class LicenseAgreementDialogFragment extends DialogFragment {
             "OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE " +
             "OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n" +
             "\n" +
-            "\n" +
-            "Privacy Policy\n" +
-            "\n" +
-            "This app searches your contacts for matches to the names read from the spreadsheet you configure it to read, and sets up a text message to those contacts via your default or chosen SMS app. It does not store any information in a persistent way, nor does it transmit any data to any other device or server.\n" +
-            "\n" +
             "Copyright notice: this app uses Material icons, copyright: Google.";
+
+    public static final String PRIVACY_POLICY = "Privacy Policy\n" +
+            "\n" +
+            "This app searches your contacts for matches to the names read from the spreadsheet you configure it to read, and sets up a text message to those contacts via your default or chosen SMS app. It does not store any information in a persistent way, nor does it transmit any data to any other device or server.";
 
     private MainActivity mainActivity;
 
@@ -54,7 +53,7 @@ public class LicenseAgreementDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(message);
+        builder.setMessage(TERMS_OF_SERVICE + "\n\n\n" + PRIVACY_POLICY);
         builder.setNegativeButton(R.string.decline_license, (dialog, which) -> mainActivity.rejectAgreement());
         builder.setPositiveButton(R.string.accept_license, (dialog, which) -> mainActivity.acceptAgreement());
         return builder.create();

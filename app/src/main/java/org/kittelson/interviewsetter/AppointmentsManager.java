@@ -33,24 +33,24 @@ import java.util.stream.Collectors;
 
 public class AppointmentsManager {
     private static final String CLASS_NAME = AppointmentsManager.class.getSimpleName();
-    private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
+    private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
 
     private static Pattern spreadsheetIdPattern = Pattern.compile("^https://docs.google.com/spreadsheets/d/(?<sheetId>[-_a-zA-Z0-9]+)/.*$");
 
-    public List<Appointment> getTentativeAppointments(Account account, Context context) {
+    public List<Appointment> getTentativeAppointments(Account account, Context context) throws UserRecoverableAuthIOException {
         return getAppointments(account, appt -> appt.getTime().isBefore(LocalDateTime.now().plusDays(7))
                 && !appt.getStage().equals(AppointmentStage.Confirmed)
                 && !appt.getStage().equals(AppointmentStage.Set), context);
     }
 
-    public List<Appointment> getAppointmentsToConfirm(Context context) {
+    public List<Appointment> getAppointmentsToConfirm(Context context) throws UserRecoverableAuthIOException {
         return getAppointments(GoogleSignIn.getLastSignedInAccount(context).getAccount(),
                 appt -> appt.getTime().isBefore(LocalDateTime.now().plusDays(1).withHour(23))
                         && appt.getStage().equals(AppointmentStage.Set),
                 context);
     }
 
-    public List<Appointment> getAppointments(Account account, Predicate<Appointment> filter, Context context) {
+    public List<Appointment> getAppointments(Account account, Predicate<Appointment> filter, Context context) throws UserRecoverableAuthIOException {
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(context, Collections.singleton(SPREADSHEETS_SCOPE));
         credential.setSelectedAccount(account);
         Sheets sheetsService = new Sheets.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), credential).setApplicationName("InterviewSetter").build();
@@ -96,7 +96,6 @@ public class AppointmentsManager {
                         && appt.getCompanions().containsAll(subAppt.getCompanions())
                         && subAppt.getCompanions().containsAll(appt.getCompanions())
                         && !appt.getTime().equals(subAppt.getTime())).findAny().isPresent()) {
-                    Log.v(CLASS_NAME, "found duplicate: " + appt);
                     appt.setDuplicate(true);
                 }
             }).filter(filter).collect(Collectors.toList());
@@ -114,9 +113,12 @@ public class AppointmentsManager {
                         "    Confirmed,\n" +
                         "    Set)\n");
             }
-            Log.v(CLASS_NAME, "appointments: " + appointments);
         } catch (UserRecoverableAuthIOException ex) {
-            context.startActivity(ex.getIntent());
+            if (context instanceof MainActivity) {
+                context.startActivity(ex.getIntent());
+            } else {
+                throw ex;
+            }
         } catch (IllegalArgumentException ex) {
             throw ex;
         } catch (GoogleJsonResponseException ex) {
@@ -129,7 +131,7 @@ public class AppointmentsManager {
             throw new IllegalArgumentException("failed to load spreadsheet: " + ex.getMessage(), ex);
         } catch (Exception e) {
             Log.e(CLASS_NAME, "failure to get spreadsheet: " + e.getClass().getName() + ": " + e.getMessage(), e);
-            throw new IllegalArgumentException("failed to load spreadsheet: " + e.getMessage());
+            throw new IllegalArgumentException("failed to load spreadsheet: " + e.getMessage(), e);
         }
         return appointments;
     }

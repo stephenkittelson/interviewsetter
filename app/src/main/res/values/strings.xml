@@ -14,4 +14,7 @@
     <string name="title_activity_settings">Settings</string>
     <string name="googleSheetId_title">Google Sheet URL</string>
     <string name="googleSheetId_key">googleSheetId</string>
+
+    <string name="setup">If you don\'t already have a apreadsheet setup for tracking the ministering interview schedule, click this button and a new spreadsheet will be setup in your
+    Google Drive account with all the sheets setup and named appropriately.</string>
 </resources>

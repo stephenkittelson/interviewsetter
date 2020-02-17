@@ -13,6 +13,7 @@
         android:roundIcon="@drawable/interview_setter_icon_512"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity android:name=".SetupActivity"></activity>
         <activity
             android:name=".DisplayTextActivity"
             android:parentActivityName=".MainActivity"

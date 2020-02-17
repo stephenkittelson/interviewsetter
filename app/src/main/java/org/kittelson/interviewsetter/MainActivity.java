@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
         }
     }
 
-    private void setupScreen() {
+    private void setupAppointmentListScreen() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
 
@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
         new Thread(() -> {
             generalDatabase.generalDataDao().save(new GeneralData(true));
         }).start();
-        setupScreen();
+        startActivity(new Intent(this, SetupActivity.class));
     }
 
     public void rejectAgreement() {
@@ -209,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
         if (!agreedToLicense) {
             new LicenseAgreementDialogFragment(this).show(getSupportFragmentManager(), "da tag 2");
         } else {
-            setupScreen();
+            setupAppointmentListScreen();
         }
     }
 }

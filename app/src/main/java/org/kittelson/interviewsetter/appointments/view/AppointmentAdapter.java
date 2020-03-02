@@ -70,7 +70,9 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
             Toast.makeText(fragmentActivity, "No phone numbers for companionship", Toast.LENGTH_LONG).show();
         } else {
             String msg = "";
-            if (!appointment.getStage().equals(AppointmentStage.Confirmed) && !appointment.getStage().equals(AppointmentStage.Set)) {
+            if (!appointment.getStage().equals(AppointmentStage.Confirmed)
+                    && !appointment.getStage().equals(AppointmentStage.Set)
+                    && !appointment.getStage().equals(AppointmentStage.TentativelySet)) {
                 if (appointment.getAppointmentType().equals(AppointmentType.Stewardship)) {
                     msg = "Could you meet with Pres " + PRES_LAST_NAME + " for an individual stewardship interview ";
                 } else if (appointment.getAppointmentType().equals(AppointmentType.Family)) {
@@ -82,6 +84,20 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
                     msg = "Could you and " + nameMissingPhoneNum + " meet with a member of the EQ presidency for a ministering interview ";
                 } else {
                     msg = "Could you meet with a member of the EQ presidency for a ministering interview ";
+                }
+
+                msg += getTimeAndLocation(appointment) + "?";
+            } else if (appointment.getStage().equals(AppointmentStage.TentativelySet)) {
+                if (appointment.getAppointmentType().equals(AppointmentType.Stewardship)) {
+                    msg = "Does your individual stewardship interview with Pres " + PRES_LAST_NAME + " still work for ";
+                } else if (appointment.getAppointmentType().equals(AppointmentType.Family)) {
+                    msg = "Does it still work for the EQ presidency to visit you and your family ";
+                } else if (allContactInfo.size() == 1 && appointment.getCompanions().size() > 1) {
+                    msg = "Does it still work for you and " + getNameMissingPhoneNum(appointment, allContactInfo) + " to have a ministering interview with a member of the EQ presidency ";
+                } else if (allContactInfo.size() > 1){
+                    msg = "Does it still work for you all to have your ministering interview with a member of the EQ presidency ";
+                } else if (allContactInfo.size() == 1) {
+                    msg = "Does it still work for you to have your ministering interview with a member of the EQ presidency ";
                 }
 
                 msg += getTimeAndLocation(appointment) + "?";

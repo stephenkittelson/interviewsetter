@@ -100,18 +100,7 @@ public class AppointmentsManager {
                 }
             }).filter(filter).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(appointments)) {
-                throw new IllegalArgumentException("Didn't find any matching rows. Expecting rows with the following columns in sheet named 'Upcoming Interviews': \n1st column: date of appointment\n"
-                + "2nd column: time of appointment\n3rd column: member of the presidency for the appointment\n4th column: type of appointment (one of Stewardship,\n" +
-                        "    Ministering,\n" +
-                        "    Chgs,\n" +
-                        "    CompChg,\n" +
-                        "    or Family)\n"
-                + "5th column: companionship formatted as \"Last name, first name / Last name, first name\" or family name formatted as \"Last name, first name of person to text & spouse's name\"\n"
-                + "6th column: location (only matters for ministering interviews)\n"
-                + "7th column: stage (one of InitialContact,\n" +
-                        "    AwaitingReply,\n" +
-                        "    Confirmed,\n" +
-                        "    Set)\n");
+                throw new IllegalArgumentException("Didn't find any matching rows (see https://stephenkittelson.wixsite.com/interviewsetter for setup instructions).\n");
             }
         } catch (UserRecoverableAuthIOException ex) {
             if (context instanceof MainActivity) {

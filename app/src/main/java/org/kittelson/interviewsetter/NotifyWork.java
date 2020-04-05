@@ -64,7 +64,7 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
     }
 
     private String getEarliestDate(List<Appointment> appointments) {
-        return DateTimeFormatter.ofPattern("L d").format(appointments.stream().sorted((appt1, appt2) -> appt1.getTime().compareTo(appt2.getTime())).findFirst().get().getTime());
+        return DateTimeFormatter.ofPattern("LLL d").format(appointments.stream().sorted((appt1, appt2) -> appt1.getTime().compareTo(appt2.getTime())).findFirst().get().getTime());
     }
 
     private void notify(int errorNotification, String title, String text) {

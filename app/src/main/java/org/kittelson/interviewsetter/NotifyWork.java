@@ -10,6 +10,11 @@ import androidx.core.app.NotificationManagerCompat;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 
+import org.kittelson.interviewsetter.appointments.Appointment;
+
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 public class NotifyWork extends AsyncTask<Void, Void, Void> {
     private static String CLASS_NAME = NotifyWork.class.getSimpleName();
 
@@ -30,8 +35,9 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
         boolean notifiedUser = false;
         try {
             try {
-                if (appointmentsManager.getTentativeAppointments(GoogleSignIn.getLastSignedInAccount(context).getAccount(), context).size() > 0) {
-                    notify(SET_APPTS_NOTIFICATION, "Set appointments", "Time to setup appointments");
+                List<Appointment> tentativeAppointments = appointmentsManager.getTentativeAppointments(GoogleSignIn.getLastSignedInAccount(context).getAccount(), context);
+                if (tentativeAppointments.size() > 0) {
+                    notify(SET_APPTS_NOTIFICATION, "Set appointments", "Set " + getEarliestDate(tentativeAppointments) + " appt");
                     notifiedUser = true;
                 }
             } catch (IllegalArgumentException ignored2) {
@@ -39,8 +45,9 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
             }
 
             try {
-                if (appointmentsManager.getAppointmentsToConfirm(context).size() > 0) {
-                    notify(CONFIRM_APPTS_NOTIFICATION, "Confirm appointments", "Time to confirm appointments");
+                List<Appointment> appointmentsToConfirm = appointmentsManager.getAppointmentsToConfirm(context);
+                if (appointmentsToConfirm.size() > 0) {
+                    notify(CONFIRM_APPTS_NOTIFICATION, "Confirm appointments", "Confirm " + getEarliestDate(appointmentsToConfirm) + " appt");
                     notifiedUser = true;
                 }
             } catch (IllegalArgumentException ignored2) {
@@ -50,10 +57,14 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
             // we'll notify them below
         }
         if (!notifiedUser) {
-            notify(ERROR_NOTIFICATION, "Set/confirm appointments", "Time to setup/confirm appointments - probably. Error loading spreadsheet.");
+            notify(ERROR_NOTIFICATION, "Set/confirm appointments", "Spreadsheet error - set/confirm appts?");
         }
         context.finishJob();
         return null;
+    }
+
+    private String getEarliestDate(List<Appointment> appointments) {
+        return DateTimeFormatter.ofPattern("L d").format(appointments.stream().sorted((appt1, appt2) -> appt1.getTime().compareTo(appt2.getTime())).findFirst().get().getTime());
     }
 
     private void notify(int errorNotification, String title, String text) {

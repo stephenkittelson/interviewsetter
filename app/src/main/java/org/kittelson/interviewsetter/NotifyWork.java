@@ -27,12 +27,6 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... ignored) {
         AppointmentsManager appointmentsManager = new AppointmentsManager();
-        if (GoogleSignIn.getLastSignedInAccount(context) == null) {
-            notify(ERROR_NOTIFICATION, "Set/confirm appointments", "Time to setup/confirm appointments - probably. Error getting last signed on Google Account.");
-            context.finishJob();
-            return null;
-        }
-
         boolean notifiedUser = false;
         try {
             try {

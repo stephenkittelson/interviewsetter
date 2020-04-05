@@ -39,7 +39,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements Observer<GeneralData> {
     private static String CLASS_NAME = MainActivity.class.getSimpleName();
 
-    private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
+    public static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
     private static final String IS_LICENSE_AGREED = "IsLicenseAgreed";
 
     private static int RC_SIGN_IN = 9001;

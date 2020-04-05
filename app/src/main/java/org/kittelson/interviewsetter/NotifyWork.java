@@ -12,7 +12,11 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 
 import org.kittelson.interviewsetter.appointments.Appointment;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.List;
 
 public class NotifyWork extends AsyncTask<Void, Void, Void> {
@@ -64,7 +68,20 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
     }
 
     private String getEarliestDate(List<Appointment> appointments) {
-        return DateTimeFormatter.ofPattern("LLL d").format(appointments.stream().sorted((appt1, appt2) -> appt1.getTime().compareTo(appt2.getTime())).findFirst().get().getTime());
+        LocalDateTime earliestAppointment = appointments.stream()
+                .filter(appt -> appt.getTime().isAfter(LocalDateTime.now()))
+                .sorted((appt1, appt2) -> appt1.getTime().compareTo(appt2.getTime())).findFirst().get().getTime();
+        String earliestDate;
+        LocalDateTime endOfDayToday = LocalDateTime.now().plusDays(1L).truncatedTo(ChronoUnit.DAYS);
+        LocalDateTime endOfDayTomorrow = LocalDateTime.now().plusDays(2L).truncatedTo(ChronoUnit.DAYS);
+        if (earliestAppointment.isBefore(endOfDayToday)) {
+            earliestDate = "today";
+        } else if (earliestAppointment.isAfter(endOfDayToday) && earliestAppointment.isBefore(endOfDayTomorrow)) {
+            earliestDate = "tomorrow";
+        } else {
+            earliestDate = DateTimeFormatter.ofPattern("LLL d").format(earliestAppointment);
+        }
+        return earliestDate;
     }
 
     private void notify(int errorNotification, String title, String text) {

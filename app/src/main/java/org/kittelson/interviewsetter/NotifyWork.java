@@ -107,7 +107,6 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
                 .build());
     }
 
-
     @Override
     protected void onPostExecute(Void ignored) {
         super.onPostExecute(ignored);

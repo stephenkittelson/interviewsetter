@@ -40,6 +40,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity implements Observer<GeneralData> {
     private static String CLASS_NAME = MainActivity.class.getSimpleName();
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
     private static final String IS_LICENSE_AGREED = "IsLicenseAgreed";
 
     private static int RC_SIGN_IN = 9001;
+    private final Pattern appLogPattern = Pattern.compile("(MainActivity|NotifyWork|TextingService|AppointmentsManager|BootBroadcastReceiver|JobSchedulingManager|LoginActivity)");
 
     private GoogleSignInClient googleSignInClient;
     private RecyclerView appointmentView;
@@ -188,21 +191,26 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
             privacyPolicyIntent.putExtra(DisplayTextActivity.TITLE_KEY, "Privacy Policy");
             startActivity(privacyPolicyIntent);
         } else if (id == R.id.action_logcat) {
-            StringBuffer output = new StringBuffer();
-            try {
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Runtime.getRuntime().exec("logcat -t 20 -d").getInputStream()));
-                String line;
-                while ((line = bufferedReader.readLine()) != null) {
-                    output.append(line).append("\n");
+            new Thread(() -> {
+                StringBuffer output = new StringBuffer();
+                try {
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Runtime.getRuntime().exec("logcat -t 200 -d").getInputStream()));
+                    String line;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        Matcher matcher = appLogPattern.matcher(line);
+                        if (matcher.find()) {
+                            output.append(line).append("\n");
+                        }
+                    }
+                } catch (IOException e) {
+                    Log.e(CLASS_NAME, "error reading from logcat: " + e.getMessage(), e);
                 }
-            } catch (IOException e) {
-                Log.e(CLASS_NAME, "error reading from logcat: " + e.getMessage(), e);
-            }
 
-            Intent logCatIntent = new Intent(this, DisplayTextActivity.class);
-            logCatIntent.putExtra(DisplayTextActivity.CONTENT_KEY, output.toString());
-            logCatIntent.putExtra(DisplayTextActivity.TITLE_KEY, "Logcat");
-            startActivity(logCatIntent);
+                Intent logCatIntent = new Intent(this, DisplayTextActivity.class);
+                logCatIntent.putExtra(DisplayTextActivity.CONTENT_KEY, output.toString());
+                logCatIntent.putExtra(DisplayTextActivity.TITLE_KEY, "Logcat");
+                startActivity(logCatIntent);
+            }).start();
         }
         return super.onOptionsItemSelected(item);
     }

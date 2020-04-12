@@ -8,6 +8,7 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.TextView;
 
@@ -23,6 +24,7 @@ public class DisplayTextActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         TextView contentView = findViewById(R.id.text_display);
         contentView.setText(getIntent().getStringExtra(CONTENT_KEY));
+        contentView.setMovementMethod(new ScrollingMovementMethod());
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(getIntent().getStringExtra(TITLE_KEY));

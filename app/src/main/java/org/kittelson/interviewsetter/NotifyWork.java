@@ -3,6 +3,7 @@ package org.kittelson.interviewsetter;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -33,6 +34,7 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... ignored) {
         AppointmentsManager appointmentsManager = new AppointmentsManager();
         boolean notifiedUser = false;
+        Exception exception = null;
         try {
             try {
                 List<Appointment> tentativeAppointments = appointmentsManager.getTentativeAppointments(GoogleSignIn.getLastSignedInAccount(context).getAccount(), context);
@@ -42,6 +44,8 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
                 }
             } catch (IllegalArgumentException ignored2) {
                 // can't notify the user, ignore it
+                Log.e(CLASS_NAME, "error getting data: " + ignored2.getMessage(), ignored2);
+                exception = ignored2;
             }
 
             try {
@@ -52,12 +56,20 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
                 }
             } catch (IllegalArgumentException ignored2) {
                 // can't notify the user, ignore it
+                Log.e(CLASS_NAME, "error getting data: " + ignored2.getMessage(), ignored2);
+                exception = ignored2;
             }
         } catch (UserRecoverableAuthIOException ex) {
             // we'll notify them below
+            Log.e(CLASS_NAME, "error getting data: " + ex.getMessage(), ex);
+            exception = ex;
         }
         if (!notifiedUser) {
-            notify(ERROR_NOTIFICATION, "Set/confirm appointments", "Spreadsheet error - set/confirm appts?");
+            if (exception != null) {
+                notify(ERROR_NOTIFICATION, "error", exception.getMessage());
+            } else {
+                Log.i(CLASS_NAME, "no appointments to set or confirm");
+            }
         }
         context.finishJob();
         return null;

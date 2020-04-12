@@ -33,8 +33,13 @@ import org.kittelson.interviewsetter.appointments.view.AppointmentAdapter;
 import org.kittelson.interviewsetter.persistence.GeneralData;
 import org.kittelson.interviewsetter.persistence.GeneralDatabase;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class MainActivity extends AppCompatActivity implements Observer<GeneralData> {
     private static String CLASS_NAME = MainActivity.class.getSimpleName();
@@ -158,6 +163,9 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        if (GoogleSignIn.getLastSignedInAccount(this).getEmail().equals("stephen.kittelson@gmail.com")) {
+            menu.findItem(R.id.action_logcat).setVisible(true);
+        }
         return true;
     }
 
@@ -179,8 +187,23 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
             privacyPolicyIntent.putExtra(DisplayTextActivity.CONTENT_KEY, LicenseAgreementDialogFragment.PRIVACY_POLICY);
             privacyPolicyIntent.putExtra(DisplayTextActivity.TITLE_KEY, "Privacy Policy");
             startActivity(privacyPolicyIntent);
-        }
+        } else if (id == R.id.action_logcat) {
+            StringBuffer output = new StringBuffer();
+            try {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Runtime.getRuntime().exec("logcat -t 20 -d").getInputStream()));
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    output.append(line).append("\n");
+                }
+            } catch (IOException e) {
+                Log.e(CLASS_NAME, "error reading from logcat: " + e.getMessage(), e);
+            }
 
+            Intent logCatIntent = new Intent(this, DisplayTextActivity.class);
+            logCatIntent.putExtra(DisplayTextActivity.CONTENT_KEY, output.toString());
+            logCatIntent.putExtra(DisplayTextActivity.TITLE_KEY, "Logcat");
+            startActivity(logCatIntent);
+        }
         return super.onOptionsItemSelected(item);
     }
 

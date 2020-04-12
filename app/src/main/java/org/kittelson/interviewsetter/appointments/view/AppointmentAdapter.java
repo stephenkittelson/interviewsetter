@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.provider.ContactsContract;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -21,10 +20,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.apache.commons.lang3.StringUtils;
 import org.kittelson.interviewsetter.ContactInfo;
+import org.kittelson.interviewsetter.R;
 import org.kittelson.interviewsetter.appointments.Appointment;
 import org.kittelson.interviewsetter.appointments.AppointmentStage;
 import org.kittelson.interviewsetter.appointments.AppointmentType;
-import org.kittelson.interviewsetter.R;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -172,7 +171,7 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
     @Override
     public void onBindViewHolder(@NonNull AppointmentViewHolder holder, int position) {
         Appointment appointment = appointments.get(position);
-        holder.textView.setText(StringUtils.join(appointment.getCompanions(), " / ") + (appointment.getAppointmentType().equals(AppointmentType.Stewardship) ? " (stewardship)" : ""));
+        holder.textView.setText(StringUtils.join(appointment.getCompanions(), " / ") + " (" + appointment.getAppointmentType() + ")");
         if (appointment.isDuplicate()) {
             holder.textView.setBackgroundColor(Color.RED);
         } else {

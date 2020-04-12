@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
@@ -166,7 +167,8 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        if (GoogleSignIn.getLastSignedInAccount(this).getEmail().equals("stephen.kittelson@gmail.com")) {
+        GoogleSignInAccount lastSignedInAccount = GoogleSignIn.getLastSignedInAccount(this);
+        if (lastSignedInAccount != null && lastSignedInAccount.getEmail() != null && lastSignedInAccount.getEmail().equals("stephen.kittelson@gmail.com")) {
             menu.findItem(R.id.action_logcat).setVisible(true);
         }
         return true;

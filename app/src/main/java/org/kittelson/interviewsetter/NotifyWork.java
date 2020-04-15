@@ -68,12 +68,10 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
             Log.e(CLASS_NAME, "error getting data: " + ex.getMessage(), ex);
             exception = ex;
         }
-        if (!notifiedUser) {
-            if (exception != null) {
-                notify(ERROR_NOTIFICATION, "error", exception.getMessage());
-            } else {
-                Log.i(CLASS_NAME, "no appointments to set or confirm");
-            }
+        if (exception != null) {
+            notify(ERROR_NOTIFICATION, "error", exception.getMessage());
+        } else if (!notifiedUser) {
+            Log.i(CLASS_NAME, "no appointments to set or confirm");
         }
         context.finishJob();
         return null;

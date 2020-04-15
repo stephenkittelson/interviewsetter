@@ -99,9 +99,6 @@ public class AppointmentsManager {
                     appt.setDuplicate(true);
                 }
             }).filter(filter).collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(appointments)) {
-                throw new IllegalArgumentException("Didn't find any matching rows (see https://stephenkittelson.wixsite.com/interviewsetter for setup instructions).\n");
-            }
         } catch (UserRecoverableAuthIOException ex) {
             if (context instanceof MainActivity) {
                 context.startActivity(ex.getIntent());

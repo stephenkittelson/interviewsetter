@@ -27,6 +27,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.common.util.CollectionUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.kittelson.interviewsetter.appointments.Appointment;
@@ -141,6 +142,9 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
         appointmentAdapter.setAppointments(newAppointments);
         appointmentAdapter.notifyDataSetChanged();
         progressBar.setVisibility(ProgressBar.INVISIBLE);
+        if (CollectionUtils.isEmpty(newAppointments)) {
+            appointmentListLoadFailed("Didn't find any matching rows (see https://stephenkittelson.wixsite.com/interviewsetter for setup instructions).\n");
+        }
     }
 
     public void appointmentListLoadFailed(String message) {

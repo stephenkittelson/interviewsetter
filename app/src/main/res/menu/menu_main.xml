@@ -18,4 +18,10 @@
         android:orderInCategory="102"
         android:title="@string/action_privacy"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_logcat"
+        android:orderInCategory="103"
+        android:title="Logcat"
+        app:showAsAction="never"
+        android:visible="false" />
 </menu>

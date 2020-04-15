@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
@@ -33,16 +34,24 @@ import org.kittelson.interviewsetter.appointments.view.AppointmentAdapter;
 import org.kittelson.interviewsetter.persistence.GeneralData;
 import org.kittelson.interviewsetter.persistence.GeneralDatabase;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity implements Observer<GeneralData> {
     private static String CLASS_NAME = MainActivity.class.getSimpleName();
 
-    private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
+    public static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
     private static final String IS_LICENSE_AGREED = "IsLicenseAgreed";
 
     private static int RC_SIGN_IN = 9001;
+    private final Pattern appLogPattern = Pattern.compile("(MainActivity|NotifyWork|TextingService|AppointmentsManager|BootBroadcastReceiver|JobSchedulingManager|LoginActivity)");
 
     private GoogleSignInClient googleSignInClient;
     private RecyclerView appointmentView;
@@ -158,6 +167,10 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        GoogleSignInAccount lastSignedInAccount = GoogleSignIn.getLastSignedInAccount(this);
+        if (lastSignedInAccount != null && lastSignedInAccount.getEmail() != null && lastSignedInAccount.getEmail().equals("stephen.kittelson@gmail.com")) {
+            menu.findItem(R.id.action_logcat).setVisible(true);
+        }
         return true;
     }
 
@@ -179,8 +192,28 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
             privacyPolicyIntent.putExtra(DisplayTextActivity.CONTENT_KEY, LicenseAgreementDialogFragment.PRIVACY_POLICY);
             privacyPolicyIntent.putExtra(DisplayTextActivity.TITLE_KEY, "Privacy Policy");
             startActivity(privacyPolicyIntent);
-        }
+        } else if (id == R.id.action_logcat) {
+            new Thread(() -> {
+                StringBuffer output = new StringBuffer();
+                try {
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Runtime.getRuntime().exec("logcat -t 200 -d").getInputStream()));
+                    String line;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        Matcher matcher = appLogPattern.matcher(line);
+                        if (matcher.find()) {
+                            output.append(line).append("\n");
+                        }
+                    }
+                } catch (IOException e) {
+                    Log.e(CLASS_NAME, "error reading from logcat: " + e.getMessage(), e);
+                }
 
+                Intent logCatIntent = new Intent(this, DisplayTextActivity.class);
+                logCatIntent.putExtra(DisplayTextActivity.CONTENT_KEY, output.toString());
+                logCatIntent.putExtra(DisplayTextActivity.TITLE_KEY, "Logcat");
+                startActivity(logCatIntent);
+            }).start();
+        }
         return super.onOptionsItemSelected(item);
     }
 

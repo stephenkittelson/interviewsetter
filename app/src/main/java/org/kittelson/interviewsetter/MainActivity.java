@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -151,7 +152,11 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
         appointmentAdapter.setAppointments(new LinkedList<>());
         appointmentAdapter.notifyDataSetChanged();
         progressBar.setVisibility(ProgressBar.INVISIBLE);
-        new SpreadsheetErrorDialogFragment().setErrorMessage(message).show(getSupportFragmentManager(), "da tag");
+        if (getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+            new SpreadsheetErrorDialogFragment().setErrorMessage(message).show(getSupportFragmentManager(), "da tag");
+        } else {
+            Log.d(CLASS_NAME, "Main activity isn't active, so not displaying appointment list result");
+        }
     }
 
     @Override

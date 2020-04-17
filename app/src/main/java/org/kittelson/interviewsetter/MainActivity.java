@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
             new Thread(() -> {
                 StringBuffer output = new StringBuffer();
                 try {
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Runtime.getRuntime().exec("logcat -t 200 -d").getInputStream()));
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Runtime.getRuntime().exec("logcat -d").getInputStream()));
                     String line;
                     while ((line = bufferedReader.readLine()) != null) {
                         Matcher matcher = appLogPattern.matcher(line);

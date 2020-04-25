@@ -114,10 +114,10 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
         } else {
             progressBar.setVisibility(ProgressBar.VISIBLE);
             new LoadApptList(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
+            new JobSchedulingManager().scheduleNextTextingJob(this);
         }
 //        ((Toolbar) findViewById(R.id.toolbar)).setTitle(viewState.toString());
 
-        new JobSchedulingManager().scheduleNextTextingJob(this);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener((View view) -> {
             if (viewState.equals(ApptViewState.TentativeAppts)) {
@@ -165,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
 
         if (requestCode == RC_SIGN_IN) {
             try {
+                new JobSchedulingManager().scheduleNextTextingJob(this);
                 new LoadApptList(this).execute(GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class).getAccount());
             } catch (ApiException e) {
                 Log.w(CLASS_NAME, "signInResult: failed code=" + e.getStatusCode() + ", reason: " + GoogleSignInStatusCodes.getStatusCodeString(e.getStatusCode()), e);

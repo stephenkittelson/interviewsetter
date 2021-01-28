@@ -2,10 +2,14 @@ package org.kittelson.interviewsetter;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
 import android.util.Log;
+
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 
@@ -26,7 +30,14 @@ public class TextingService extends JobService {
 
         if (GoogleSignIn.getLastSignedInAccount(this) == null) {
             Log.v(CLASS_NAME, "getting sign-in again");
-            startActivity(new Intent(this, LoginActivity.class));
+            NotificationManagerCompat.from(this).notify(1001, new NotificationCompat.Builder(this, NotifyWork.SEND_TEXTS_NOTIF_CHANNEL)
+                    .setSmallIcon(android.R.drawable.ic_menu_send)
+                    .setContentTitle("Login required")
+                    .setContentText("Open the app to login")
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setAutoCancel(true)
+                    .setContentIntent(PendingIntent.getActivity(this, 1001, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT))
+                    .build());
             finishJob();
         } else {
             Log.v(CLASS_NAME, "sign-on good, executing notifications");

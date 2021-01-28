@@ -8,12 +8,16 @@ import android.util.Log;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.common.util.CollectionUtils;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.HttpBackOffIOExceptionHandler;
+import com.google.api.client.http.HttpBackOffUnsuccessfulResponseHandler;
+import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 
@@ -53,7 +57,19 @@ public class AppointmentsManager {
     public List<Appointment> getAppointments(Account account, Predicate<Appointment> filter, Context context) throws UserRecoverableAuthIOException {
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(context, Collections.singleton(SPREADSHEETS_SCOPE));
         credential.setSelectedAccount(account);
-        Sheets sheetsService = new Sheets.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), credential).setApplicationName("InterviewSetter").build();
+        Sheets.Builder sheetsServiceBuilder = new Sheets.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), credential)
+                .setApplicationName("InterviewSetter");
+        final HttpRequestInitializer originalHttpRequestInitializer = sheetsServiceBuilder.getHttpRequestInitializer();
+        Sheets sheetsService = sheetsServiceBuilder
+                .setHttpRequestInitializer(request -> {
+                    if (originalHttpRequestInitializer != null) {
+                        originalHttpRequestInitializer.initialize(request);
+                    }
+                    request.setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(new ExponentialBackOff()));
+                    request.setNumberOfRetries(100);
+                    request.setIOExceptionHandler(new HttpBackOffIOExceptionHandler(new ExponentialBackOff.Builder().setMaxIntervalMillis(1_000).build()));
+                })
+                .build();
         Spreadsheet response;
         List<Appointment> appointments = new LinkedList<>();
         Matcher sheetIdMatcher;
@@ -99,20 +115,6 @@ public class AppointmentsManager {
                     appt.setDuplicate(true);
                 }
             }).filter(filter).collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(appointments)) {
-                throw new IllegalArgumentException("Didn't find any matching rows. Expecting rows with the following columns in sheet named 'Upcoming Interviews': \n1st column: date of appointment\n"
-                + "2nd column: time of appointment\n3rd column: member of the presidency for the appointment\n4th column: type of appointment (one of Stewardship,\n" +
-                        "    Ministering,\n" +
-                        "    Chgs,\n" +
-                        "    CompChg,\n" +
-                        "    or Family)\n"
-                + "5th column: companionship formatted as \"Last name, first name / Last name, first name\" or family name formatted as \"Last name, first name of person to text & spouse's name\"\n"
-                + "6th column: location (only matters for ministering interviews)\n"
-                + "7th column: stage (one of InitialContact,\n" +
-                        "    AwaitingReply,\n" +
-                        "    Confirmed,\n" +
-                        "    Set)\n");
-            }
         } catch (UserRecoverableAuthIOException ex) {
             if (context instanceof MainActivity) {
                 context.startActivity(ex.getIntent());

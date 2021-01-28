@@ -13,6 +13,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 
 import org.kittelson.interviewsetter.appointments.Appointment;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -40,40 +41,38 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
         boolean notifiedUser = false;
         Exception exception = null;
         try {
-            try {
-                List<Appointment> tentativeAppointments = appointmentsManager.getTentativeAppointments(GoogleSignIn.getLastSignedInAccount(context).getAccount(), context);
-                if (tentativeAppointments.size() > 0) {
-                    notify(SET_APPTS_NOTIFICATION, "Set appointments", "Set " + getEarliestDate(tentativeAppointments) + " appt");
-                    notifiedUser = true;
-                }
-            } catch (IllegalArgumentException ignored2) {
-                // can't notify the user, ignore it
-                Log.e(CLASS_NAME, "error getting data: " + ignored2.getMessage(), ignored2);
-                exception = ignored2;
+            List<Appointment> tentativeAppointments = appointmentsManager.getTentativeAppointments(GoogleSignIn.getLastSignedInAccount(context).getAccount(), context);
+            if (tentativeAppointments.size() > 0) {
+                notify(SET_APPTS_NOTIFICATION, "Set appointments", "Set " + getEarliestDate(tentativeAppointments) + " appt");
+                notifiedUser = true;
             }
-
-            try {
-                List<Appointment> appointmentsToConfirm = appointmentsManager.getAppointmentsToConfirm(context);
-                if (appointmentsToConfirm.size() > 0) {
-                    notify(CONFIRM_APPTS_NOTIFICATION, "Confirm appointments", "Confirm " + getEarliestDate(appointmentsToConfirm) + " appt");
-                    notifiedUser = true;
-                }
-            } catch (IllegalArgumentException ignored2) {
-                // can't notify the user, ignore it
-                Log.e(CLASS_NAME, "error getting data: " + ignored2.getMessage(), ignored2);
-                exception = ignored2;
-            }
-        } catch (UserRecoverableAuthIOException ex) {
-            // we'll notify them below
-            Log.e(CLASS_NAME, "error getting data: " + ex.getMessage(), ex);
+        } catch (IllegalArgumentException ignored2) {
+            // can't notify the user, ignore it
+            Log.e(CLASS_NAME, "error getting data: " + ignored2.getMessage(), ignored2);
+            exception = ignored2;
+        } catch (IOException ex) {
+            // already logged
             exception = ex;
         }
-        if (!notifiedUser) {
-            if (exception != null) {
-                notify(ERROR_NOTIFICATION, "error", exception.getMessage());
-            } else {
-                Log.i(CLASS_NAME, "no appointments to set or confirm");
+
+        try {
+            List<Appointment> appointmentsToConfirm = appointmentsManager.getAppointmentsToConfirm(context);
+            if (appointmentsToConfirm.size() > 0) {
+                notify(CONFIRM_APPTS_NOTIFICATION, "Confirm appointments", "Confirm " + getEarliestDate(appointmentsToConfirm) + " appt");
+                notifiedUser = true;
             }
+        } catch (IllegalArgumentException ignored2) {
+            // can't notify the user, ignore it
+            Log.e(CLASS_NAME, "error getting data: " + ignored2.getMessage(), ignored2);
+            exception = ignored2;
+        } catch (IOException ex) {
+            // already logged
+            exception = ex;
+        }
+        if (exception != null) {
+            notify(ERROR_NOTIFICATION, "error", exception.getMessage());
+        } else if (!notifiedUser) {
+            Log.i(CLASS_NAME, "no appointments to set or confirm");
         }
         context.finishJob();
         return null;

@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,6 +28,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.common.util.CollectionUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.kittelson.interviewsetter.appointments.Appointment;
@@ -112,10 +114,10 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
         } else {
             progressBar.setVisibility(ProgressBar.VISIBLE);
             new LoadApptList(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
+            new JobSchedulingManager().scheduleNextTextingJob(this);
         }
 //        ((Toolbar) findViewById(R.id.toolbar)).setTitle(viewState.toString());
 
-        new JobSchedulingManager().scheduleNextTextingJob(this);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener((View view) -> {
             if (viewState.equals(ApptViewState.TentativeAppts)) {
@@ -141,13 +143,20 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
         appointmentAdapter.setAppointments(newAppointments);
         appointmentAdapter.notifyDataSetChanged();
         progressBar.setVisibility(ProgressBar.INVISIBLE);
+        if (CollectionUtils.isEmpty(newAppointments)) {
+            appointmentListLoadFailed("Didn't find any matching rows (see https://stephenkittelson.wixsite.com/interviewsetter for setup instructions).\n");
+        }
     }
 
     public void appointmentListLoadFailed(String message) {
         appointmentAdapter.setAppointments(new LinkedList<>());
         appointmentAdapter.notifyDataSetChanged();
         progressBar.setVisibility(ProgressBar.INVISIBLE);
-        new SpreadsheetErrorDialogFragment().setErrorMessage(message).show(getSupportFragmentManager(), "da tag");
+        if (getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+            new SpreadsheetErrorDialogFragment().setErrorMessage(message).show(getSupportFragmentManager(), "da tag");
+        } else {
+            Log.d(CLASS_NAME, "Main activity isn't active, so not displaying appointment list result");
+        }
     }
 
     @Override
@@ -156,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
 
         if (requestCode == RC_SIGN_IN) {
             try {
+                new JobSchedulingManager().scheduleNextTextingJob(this);
                 new LoadApptList(this).execute(GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class).getAccount());
             } catch (ApiException e) {
                 Log.w(CLASS_NAME, "signInResult: failed code=" + e.getStatusCode() + ", reason: " + GoogleSignInStatusCodes.getStatusCodeString(e.getStatusCode()), e);
@@ -196,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
             new Thread(() -> {
                 StringBuffer output = new StringBuffer();
                 try {
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Runtime.getRuntime().exec("logcat -t 200 -d").getInputStream()));
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Runtime.getRuntime().exec("logcat -d").getInputStream()));
                     String line;
                     while ((line = bufferedReader.readLine()) != null) {
                         Matcher matcher = appLogPattern.matcher(line);

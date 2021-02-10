@@ -67,7 +67,7 @@ public class AppointmentsManager {
                     }
                     request.setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(new ExponentialBackOff()));
                     request.setNumberOfRetries(100);
-                    request.setIOExceptionHandler(new HttpBackOffIOExceptionHandler(new ExponentialBackOff.Builder().setMaxIntervalMillis(1_000).build()));
+                    request.setIOExceptionHandler(new HttpBackOffIOExceptionHandler(new ExponentialBackOff.Builder().setMaxIntervalMillis(60_000).build()));
                 })
                 .build();
         Spreadsheet response;

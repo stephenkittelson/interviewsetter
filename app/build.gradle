@@ -31,6 +31,9 @@ dependencies {
     implementation('com.google.api-client:google-api-client-android:1.23.0') {
         exclude group: 'org.apache.httpcomponents'
     }
+    implementation('com.google.api-client:google-api-client:1.23.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
     implementation('com.google.apis:google-api-services-sheets:v4-rev516-1.23.0') {
         exclude group: 'org.apache.httpcomponents'
     }

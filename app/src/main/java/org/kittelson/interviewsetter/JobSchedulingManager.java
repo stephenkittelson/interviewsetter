@@ -4,6 +4,7 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
+import android.net.NetworkRequest;
 import android.util.Log;
 
 import java.time.DayOfWeek;
@@ -27,6 +28,7 @@ public class JobSchedulingManager {
 
         if (jobScheduler.schedule(new JobInfo.Builder(0, new ComponentName(context, TextingService.class))
                 .setPersisted(true)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setMinimumLatency(jobWindow.getWindowStartMillis())
                 .setOverrideDeadline(jobWindow.getWindowEndMillis())
                 .build()) == JobScheduler.RESULT_FAILURE) {

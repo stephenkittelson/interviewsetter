@@ -69,46 +69,47 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentViewHold
             Toast.makeText(fragmentActivity, "No phone numbers for companionship", Toast.LENGTH_LONG).show();
         } else {
             String msg = "";
+            String presidencyMember = (appointment.getPresidencyMember().equals(PRES_LAST_NAME) ? "Pres " : "Bro ") + appointment.getPresidencyMember();
             if (!appointment.getStage().equals(AppointmentStage.Confirmed)
                     && !appointment.getStage().equals(AppointmentStage.Set)
                     && !appointment.getStage().equals(AppointmentStage.TentativelySet)) {
                 if (appointment.getAppointmentType().equals(AppointmentType.Stewardship)) {
-                    msg = "Could you meet with Pres " + PRES_LAST_NAME + " for an individual stewardship interview ";
+                    msg = "Could you meet with Pres " + appointment.getPresidencyMember() + " for an individual stewardship interview ";
                 } else if (appointment.getAppointmentType().equals(AppointmentType.Family)) {
                     msg = "Could the EQ presidency visit you and your family ";
                 } else if (allContactInfo.size() > 1) {
-                    msg = "Could you guys meet with a member of the EQ presidency for a ministering interview ";
+                    msg = "Could you guys meet with " + presidencyMember + " for a ministering interview ";
                 } else if (appointment.getCompanions().size() > 1) {
                     String nameMissingPhoneNum = getNameMissingPhoneNum(appointment, allContactInfo);
-                    msg = "Could you and " + nameMissingPhoneNum + " meet with a member of the EQ presidency for a ministering interview ";
+                    msg = "Could you and " + nameMissingPhoneNum + " meet with " + presidencyMember + " for a ministering interview ";
                 } else {
-                    msg = "Could you meet with a member of the EQ presidency for a ministering interview ";
+                    msg = "Could you meet with " + presidencyMember + " for a ministering interview ";
                 }
 
                 msg += getTimeAndLocation(appointment) + "?";
             } else if (appointment.getStage().equals(AppointmentStage.TentativelySet)) {
                 if (appointment.getAppointmentType().equals(AppointmentType.Stewardship)) {
-                    msg = "Does your individual stewardship interview with Pres " + PRES_LAST_NAME + " still work for ";
+                    msg = "Does your individual stewardship interview with Pres " + appointment.getPresidencyMember() + " still work for ";
                 } else if (appointment.getAppointmentType().equals(AppointmentType.Family)) {
                     msg = "Does it still work for the EQ presidency to visit you and your family ";
                 } else if (allContactInfo.size() == 1 && appointment.getCompanions().size() > 1) {
-                    msg = "Does it still work for you and " + getNameMissingPhoneNum(appointment, allContactInfo) + " to have a ministering interview with a member of the EQ presidency ";
+                    msg = "Does it still work for you and " + getNameMissingPhoneNum(appointment, allContactInfo) + " to have a ministering interview with " + presidencyMember + " ";
                 } else if (allContactInfo.size() > 1){
-                    msg = "Does it still work for you all to have your ministering interview with a member of the EQ presidency ";
+                    msg = "Does it still work for y'all to have your ministering interview with " + presidencyMember + " ";
                 } else if (allContactInfo.size() == 1) {
-                    msg = "Does it still work for you to have your ministering interview with a member of the EQ presidency ";
+                    msg = "Does it still work for you to have your ministering interview with " + presidencyMember + " ";
                 }
 
                 msg += getTimeAndLocation(appointment) + "?";
             } else if (appointment.getStage().equals(AppointmentStage.Set)) {
                 if (appointment.getAppointmentType().equals(AppointmentType.Stewardship)) {
-                    msg = "Just texting to confirm your individual stewardship interview with Pres " + PRES_LAST_NAME + " ";
+                    msg = "Just texting to confirm your individual stewardship interview with Pres " + appointment.getPresidencyMember() + " ";
                 } else if (appointment.getAppointmentType().equals(AppointmentType.Family)) {
                     msg = "Just texting to confirm that the EQ presidency will visit you and your family ";
                 } else if (allContactInfo.size() == 1 && appointment.getCompanions().size() > 1) {
-                    msg = "Just texting to confirm you and " + getNameMissingPhoneNum(appointment, allContactInfo) + "'s ministering interview with a member of the EQ presidency ";
+                    msg = "Just texting to confirm you and " + getNameMissingPhoneNum(appointment, allContactInfo) + "'s ministering interview with " + presidencyMember + " ";
                 } else {
-                    msg = "Just texting to confirm your ministering interview with a member of the EQ presidency ";
+                    msg = "Just texting to confirm your ministering interview with " + presidencyMember + " ";
                 }
 
                 msg += getTimeAndLocation(appointment);

@@ -52,7 +52,7 @@
         </receiver>
 
         <service
-            android:name=".TextingService"
+            android:name=".NotificationWorker"
             android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 

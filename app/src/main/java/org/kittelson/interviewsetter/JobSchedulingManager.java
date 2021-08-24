@@ -1,16 +1,19 @@
 package org.kittelson.interviewsetter;
 
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
 import android.content.Context;
-import android.net.NetworkRequest;
 import android.util.Log;
+
+import androidx.work.Constraints;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import java.time.DayOfWeek;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
+import java.util.concurrent.TimeUnit;
 
 public class JobSchedulingManager {
     private static String CLASS_NAME = JobSchedulingManager.class.getSimpleName();
@@ -24,17 +27,12 @@ public class JobSchedulingManager {
         Log.v(CLASS_NAME, "start time: " + DateTimeFormatter.ISO_DATE_TIME.format(jobWindow.getWindowStart())
                 + ", end time: " + DateTimeFormatter.ISO_DATE_TIME.format(jobWindow.getWindowEnd()));
 
-        JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-
-        if (jobScheduler.schedule(new JobInfo.Builder(0, new ComponentName(context, TextingService.class))
-                .setPersisted(true)
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setMinimumLatency(jobWindow.getWindowStartMillis())
-                .setOverrideDeadline(jobWindow.getWindowEndMillis())
-                .build()) == JobScheduler.RESULT_FAILURE) {
-            Log.e(CLASS_NAME, "job scheduling failed");
-        }
-        Log.v(CLASS_NAME, "job scheduler setup");
+        OneTimeWorkRequest notificationRequest = new OneTimeWorkRequest.Builder(NotificationWorker.class)
+                .setConstraints(new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+                .setInitialDelay(jobWindow.getWindowStartMillis(), TimeUnit.MILLISECONDS)
+                .build();
+        WorkManager.getInstance(context).enqueueUniqueWork("notification", ExistingWorkPolicy.KEEP, notificationRequest);
+        Log.v(CLASS_NAME, "notification job enqueued");
     }
 
     public JobWindow getNextJobWindow(ZonedDateTime currentTime) {

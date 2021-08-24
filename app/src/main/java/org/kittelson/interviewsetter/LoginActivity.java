@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
 import com.google.android.gms.common.api.ApiException;
@@ -38,7 +37,7 @@ public class LoginActivity extends AppCompatActivity {
             startActivityForResult(GoogleSignIn.getClient(this, gso).getSignInIntent(), RC_SIGN_IN);
         } else {
             Log.v(CLASS_NAME, "sign-on is still good, reusing");
-            startService(new Intent(this, TextingService.class));
+            startService(new Intent(this, NotificationWorker.class));
         }
     }
 
@@ -50,7 +49,7 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 Log.v(CLASS_NAME, "sign-on complete, ensuring result and starting service again");
                 GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class).getAccount();
-                startService(new Intent(this, TextingService.class));
+                startService(new Intent(this, NotificationWorker.class));
             } catch (ApiException e) {
                 Log.w(CLASS_NAME, "signInResult: failed code=" + e.getStatusCode() + ", reason: " + GoogleSignInStatusCodes.getStatusCodeString(e.getStatusCode()), e);
                 throw new RuntimeException(e);

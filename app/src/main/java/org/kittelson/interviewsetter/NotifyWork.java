@@ -9,16 +9,13 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 
 import org.kittelson.interviewsetter.appointments.Appointment;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.List;
 
 public class NotifyWork extends AsyncTask<Void, Void, Void> {
@@ -29,9 +26,9 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
     private static final int CONFIRM_APPTS_NOTIFICATION = 1;
     private static final int ERROR_NOTIFICATION = 3;
 
-    private TextingService context;
+    private NotificationWorker context;
 
-    public NotifyWork(TextingService context) {
+    public NotifyWork(NotificationWorker context) {
         this.context = context;
     }
 

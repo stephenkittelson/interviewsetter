@@ -169,6 +169,8 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
                 new LoadApptList(this).execute(GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class).getAccount());
             } catch (ApiException e) {
                 Log.w(CLASS_NAME, "signInResult: failed code=" + e.getStatusCode() + ", reason: " + GoogleSignInStatusCodes.getStatusCodeString(e.getStatusCode()), e);
+                progressBar.setVisibility(ProgressBar.INVISIBLE);
+                new SpreadsheetErrorDialogFragment().setErrorMessage("Failed to load spreadsheet: " + GoogleSignInStatusCodes.getStatusCodeString(e.getStatusCode())).show(getSupportFragmentManager(), "da tag");
             }
         }
     }

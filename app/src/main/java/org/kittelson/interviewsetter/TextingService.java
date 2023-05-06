@@ -36,7 +36,7 @@ public class TextingService extends JobService {
                     .setContentText("Open the app to login")
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setAutoCancel(true)
-                    .setContentIntent(PendingIntent.getActivity(this, 1001, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT))
+                    .setContentIntent(PendingIntent.getActivity(this, 1001, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE))
                     .build());
             finishJob();
         } else {

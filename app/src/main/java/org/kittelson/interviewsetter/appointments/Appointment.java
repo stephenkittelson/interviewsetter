@@ -1,7 +1,5 @@
 package org.kittelson.interviewsetter.appointments;
 
-import android.util.Log;
-
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDateTime;
@@ -49,13 +47,13 @@ public class Appointment {
     }
 
     private static Pattern twoCompanionPattern = Pattern.compile("^ *~? *(\\S+) *, *(\\S+) */ *~? *(\\S+) *, *(\\S+)");
-    private static Pattern oneCompanionPattern = Pattern.compile("^ *~? *(\\S+) *, *(\\S+)");
+    private static Pattern multiNameMatcher = Pattern.compile("^( *([\\S ]+) *, *(\\S+) */?){1,3}");
     private static Pattern familyPattern = Pattern.compile("^ *~? *(\\S+) *, *(\\S+) *& *(\\S+)");
 
     public Appointment setCompanions(String companions) {
         Matcher familyMatcher = familyPattern.matcher(companions);
         Matcher twoCompanionMatcher = twoCompanionPattern.matcher(companions);
-        Matcher oneCompanionMatcher = oneCompanionPattern.matcher(companions);
+        Matcher oneCompanionMatcher = multiNameMatcher.matcher(companions);
         this.companions = new ArrayList<>();
         if (familyMatcher.find()) {
             this.companions.add(familyMatcher.group(2) + " " + familyMatcher.group(1));

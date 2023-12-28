@@ -18,8 +18,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.regex.Matcher;
 
+import javax.inject.Inject;
+
 public class SpreadsheetClient {
     private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
+
+    @Inject
+    public SpreadsheetClient() {
+    }
 
     public Spreadsheet getSpreadsheetData(Account account, Context context, Matcher sheetIdMatcher) throws IOException {
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(context, Collections.singleton(SPREADSHEETS_SCOPE));

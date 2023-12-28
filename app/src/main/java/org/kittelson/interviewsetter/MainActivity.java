@@ -44,6 +44,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class MainActivity extends AppCompatActivity implements Observer<GeneralData> {
     private static String CLASS_NAME = MainActivity.class.getSimpleName();
 
@@ -62,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
     private ProgressBar progressBar;
     private boolean agreedToLicense;
     private GeneralDatabase generalDatabase;
+    @Inject
+    LoadApptList loadApptList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
             startActivityForResult(googleSignInClient.getSignInIntent(), RC_SIGN_IN);
         } else {
             progressBar.setVisibility(ProgressBar.VISIBLE);
-            new LoadApptList(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
+            loadApptList.setContext(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
             new JobSchedulingManager().scheduleNextTextingJob(this);
         }
 //        ((Toolbar) findViewById(R.id.toolbar)).setTitle(viewState.toString());
@@ -126,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
             ((Toolbar) findViewById(R.id.my_toolbar)).setTitle(viewState.toString());
             progressBar.setVisibility(ProgressBar.VISIBLE);
             if (GoogleSignIn.getLastSignedInAccount(this) != null) {
-                new LoadApptList(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
+                loadApptList.setContext(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
             } else {
                 startActivityForResult(googleSignInClient.getSignInIntent(), RC_SIGN_IN);
             }
@@ -164,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
         if (requestCode == RC_SIGN_IN) {
             try {
                 new JobSchedulingManager().scheduleNextTextingJob(this);
-                new LoadApptList(this).execute(GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class).getAccount());
+                loadApptList.setContext(this).execute(GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class).getAccount());
             } catch (ApiException e) {
                 Log.w(CLASS_NAME, "signInResult: failed code=" + e.getStatusCode() + ", reason: " + GoogleSignInStatusCodes.getStatusCodeString(e.getStatusCode()), e);
                 progressBar.setVisibility(ProgressBar.INVISIBLE);

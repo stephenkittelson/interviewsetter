@@ -15,10 +15,17 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 
 import java.time.ZonedDateTime;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class TextingService extends JobService {
     private static String CLASS_NAME = TextingService.class.getSimpleName();
 
     private JobParameters params;
+
+    @Inject NotifyWork notifyWork;
 
     @Override
     public boolean onStartJob(JobParameters params) {
@@ -41,7 +48,7 @@ public class TextingService extends JobService {
             finishJob();
         } else {
             Log.v(CLASS_NAME, "sign-on good, executing notifications");
-            new NotifyWork(this).execute();
+            notifyWork.setContext(this).execute();
             new JobSchedulingManager().scheduleNextJobWithOffset(this, ZonedDateTime.now().plusDays(1).withHour(9).withMinute(0));
                 /*
          TODO keep executing in window, just don't reactivate the notification if 1) it's already active, 2) no one is pending a text message - all in case

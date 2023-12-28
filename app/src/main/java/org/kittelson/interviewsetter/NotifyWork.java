@@ -21,6 +21,8 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class NotifyWork extends AsyncTask<Void, Void, Void> {
     private static String CLASS_NAME = NotifyWork.class.getSimpleName();
 
@@ -30,14 +32,20 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
     private static final int ERROR_NOTIFICATION = 3;
 
     private TextingService context;
+    private AppointmentsManager appointmentsManager;
 
-    public NotifyWork(TextingService context) {
+    @Inject
+    public NotifyWork(AppointmentsManager appointmentsManager) {
+        this.appointmentsManager = appointmentsManager;
+    }
+
+    public NotifyWork setContext(TextingService context) {
         this.context = context;
+        return this;
     }
 
     @Override
     protected Void doInBackground(Void... ignored) {
-        AppointmentsManager appointmentsManager = new AppointmentsManager();
         boolean notifiedUser = false;
         Exception exception = null;
         try {

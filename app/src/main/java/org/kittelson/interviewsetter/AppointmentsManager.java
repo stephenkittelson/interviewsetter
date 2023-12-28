@@ -32,8 +32,12 @@ public class AppointmentsManager {
     private static final String CLASS_NAME = AppointmentsManager.class.getSimpleName();
     private static Pattern spreadsheetIdPattern = Pattern.compile("^https://docs.google.com/spreadsheets/d/(?<sheetId>[-_a-zA-Z0-9]+)/.*$");
 
+    private SpreadsheetClient spreadsheetClient;
+
     @Inject
-    SpreadsheetClient spreadsheetClient;
+    public AppointmentsManager(SpreadsheetClient spreadsheetClient) {
+        this.spreadsheetClient = spreadsheetClient;
+    }
 
     public List<Appointment> getTentativeAppointments(Account account, Context context) throws UserRecoverableAuthIOException {
         return getAppointments(account, appt -> appt.getTime().isBefore(LocalDateTime.now().plusDays(7))

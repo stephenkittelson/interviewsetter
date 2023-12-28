@@ -10,15 +10,24 @@ import org.kittelson.interviewsetter.appointments.Appointment;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class LoadApptList extends AsyncTask<Account, Void, List<Appointment>> {
     private static String CLASS_NAME = LoadApptList.class.getSimpleName();
 
     private MainActivity context;
     private IllegalArgumentException spreadsheetException;
+    private AppointmentsManager appointmentsManager;
 
-    public LoadApptList(MainActivity context) {
-        this.context = context;
+    @Inject
+    public LoadApptList(AppointmentsManager appointmentsManager) {
+        this.appointmentsManager = appointmentsManager;
         spreadsheetException = null;
+    }
+
+    public LoadApptList setContext(MainActivity context) {
+        this.context = context;
+        return this;
     }
 
     @Override
@@ -26,9 +35,9 @@ public class LoadApptList extends AsyncTask<Account, Void, List<Appointment>> {
         List<Appointment> appointments = new LinkedList<>();
         try {
             if (context.getViewState().equals(ApptViewState.TentativeAppts)) {
-                appointments = new AppointmentsManager().getTentativeAppointments(accounts[0], context);
+                appointments = appointmentsManager.getTentativeAppointments(accounts[0], context);
             } else {
-                appointments = new AppointmentsManager().getAppointmentsToConfirm(context);
+                appointments = appointmentsManager.getAppointmentsToConfirm(context);
             }
         } catch (IllegalArgumentException ex) {
             spreadsheetException = ex;

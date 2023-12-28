@@ -8,17 +8,8 @@ import android.util.Log;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.http.HttpBackOffIOExceptionHandler;
-import com.google.api.client.http.HttpBackOffUnsuccessfulResponseHandler;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.ExponentialBackOff;
-import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,8 +17,6 @@ import org.kittelson.interviewsetter.appointments.Appointment;
 import org.kittelson.interviewsetter.appointments.AppointmentStage;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -35,11 +24,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
 public class AppointmentsManager {
     private static final String CLASS_NAME = AppointmentsManager.class.getSimpleName();
-    private static String SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
-
     private static Pattern spreadsheetIdPattern = Pattern.compile("^https://docs.google.com/spreadsheets/d/(?<sheetId>[-_a-zA-Z0-9]+)/.*$");
+
+    @Inject
+    SpreadsheetClient spreadsheetClient;
 
     public List<Appointment> getTentativeAppointments(Account account, Context context) throws UserRecoverableAuthIOException {
         return getAppointments(account, appt -> appt.getTime().isBefore(LocalDateTime.now().plusDays(7))
@@ -55,22 +49,6 @@ public class AppointmentsManager {
     }
 
     public List<Appointment> getAppointments(Account account, Predicate<Appointment> filter, Context context) throws UserRecoverableAuthIOException {
-        GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(context, Collections.singleton(SPREADSHEETS_SCOPE));
-        credential.setSelectedAccount(account);
-        Sheets.Builder sheetsServiceBuilder = new Sheets.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), credential)
-                .setApplicationName("InterviewSetter");
-        final HttpRequestInitializer originalHttpRequestInitializer = sheetsServiceBuilder.getHttpRequestInitializer();
-        Sheets sheetsService = sheetsServiceBuilder
-                .setHttpRequestInitializer(request -> {
-                    if (originalHttpRequestInitializer != null) {
-                        originalHttpRequestInitializer.initialize(request);
-                    }
-                    request.setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(new ExponentialBackOff()));
-                    request.setNumberOfRetries(10);
-                    request.setIOExceptionHandler(new HttpBackOffIOExceptionHandler(new ExponentialBackOff.Builder().setMaxIntervalMillis(60_000).build()));
-                })
-                .build();
-        Spreadsheet response;
         List<Appointment> appointments = new LinkedList<>();
         Matcher sheetIdMatcher;
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -81,9 +59,7 @@ public class AppointmentsManager {
             return appointments;
         }
         try {
-            response = sheetsService.spreadsheets().get(sheetIdMatcher.group("sheetId"))
-                    .setRanges(Arrays.asList("'Upcoming Interviews'!A2:G100"))
-                    .setFields("sheets.data.rowData.values.effectiveValue").execute();
+            Spreadsheet response = spreadsheetClient.getSpreadsheetData(account, context, sheetIdMatcher);
             List<Appointment> allAppointments = response.getSheets().stream()
                     .flatMap(sheet -> sheet.getData().stream()
                             .flatMap(gridData -> gridData.getRowData().stream()
@@ -137,4 +113,5 @@ public class AppointmentsManager {
         }
         return appointments;
     }
+
 }

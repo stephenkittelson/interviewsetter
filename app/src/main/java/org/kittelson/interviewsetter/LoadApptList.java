@@ -12,7 +12,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class LoadApptList extends AsyncTask<Account, Void, List<Appointment>> {
+public class LoadApptList {
     private static String CLASS_NAME = LoadApptList.class.getSimpleName();
 
     private MainActivity context;
@@ -30,32 +30,27 @@ public class LoadApptList extends AsyncTask<Account, Void, List<Appointment>> {
         return this;
     }
 
-    @Override
-    protected List<Appointment> doInBackground(Account... accounts) {
-        List<Appointment> appointments = new LinkedList<>();
-        try {
-            if (context.getViewState().equals(ApptViewState.TentativeAppts)) {
-                appointments = appointmentsManager.getTentativeAppointments(accounts[0], context);
-            } else {
-                appointments = appointmentsManager.getAppointmentsToConfirm(context);
+    public void execute(Account account) {
+        new Thread(() -> {
+            List<Appointment> appointments = new LinkedList<>();
+            try {
+                if (context.getViewState().equals(ApptViewState.TentativeAppts)) {
+                    appointments = appointmentsManager.getTentativeAppointments(account, context);
+                } else {
+                    appointments = appointmentsManager.getAppointmentsToConfirm(context);
+                }
+            } catch (IllegalArgumentException ex) {
+                spreadsheetException = ex;
+            } catch (UserRecoverableAuthIOException ex) {
+                // auth fix would have already been triggered - should never actually get here
             }
-        } catch (IllegalArgumentException ex) {
-            spreadsheetException = ex;
-        } catch (UserRecoverableAuthIOException ex) {
-            // auth fix would have already been triggered - should never actually get here
-        }
-        return appointments;
-    }
-
-    @Override
-    protected void onPostExecute(List<Appointment> appointments) {
-        super.onPostExecute(appointments);
-        if (context != null) {
-            if (spreadsheetException == null) {
-                context.setAppointmentList(appointments);
-            } else {
-                context.appointmentListLoadFailed(spreadsheetException.getMessage());
+            if (context != null) {
+                if (spreadsheetException == null) {
+                    context.setAppointmentList(appointments);
+                } else {
+                    context.appointmentListLoadFailed(spreadsheetException.getMessage());
+                }
             }
-        }
+        }).start();
     }
 }

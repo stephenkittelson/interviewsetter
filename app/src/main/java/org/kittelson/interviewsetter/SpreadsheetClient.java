@@ -3,17 +3,18 @@ package org.kittelson.interviewsetter;
 import android.accounts.Account;
 import android.content.Context;
 
-import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpBackOffIOExceptionHandler;
 import com.google.api.client.http.HttpBackOffUnsuccessfulResponseHandler;
 import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.regex.Matcher;
@@ -27,10 +28,10 @@ public class SpreadsheetClient {
     public SpreadsheetClient() {
     }
 
-    public Spreadsheet getSpreadsheetData(Account account, Context context, Matcher sheetIdMatcher) throws IOException {
+    public Spreadsheet getSpreadsheetData(Account account, Context context, Matcher sheetIdMatcher) throws IOException, GeneralSecurityException {
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(context, Collections.singleton(SPREADSHEETS_SCOPE));
         credential.setSelectedAccount(account);
-        Sheets.Builder sheetsServiceBuilder = new Sheets.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), credential)
+        Sheets.Builder sheetsServiceBuilder = new Sheets.Builder(GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance(), credential)
                 .setApplicationName("InterviewSetter");
         final HttpRequestInitializer originalHttpRequestInitializer = sheetsServiceBuilder.getHttpRequestInitializer();
         Sheets sheetsService = sheetsServiceBuilder

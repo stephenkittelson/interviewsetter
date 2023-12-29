@@ -7,6 +7,4 @@ import dagger.hilt.android.components.ActivityComponent;
 @Module
 @InstallIn(ActivityComponent.class)
 public abstract class MainModule {
-//    @Binds
-//    public abstract SpreadsheetClient bindSpreadsheetClient(SpreadsheetClient spreadsheetClient);
 }

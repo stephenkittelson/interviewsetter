@@ -26,8 +26,6 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import dagger.hilt.android.AndroidEntryPoint;
-
 public class AppointmentsManager {
     private static final String CLASS_NAME = AppointmentsManager.class.getSimpleName();
     private static Pattern spreadsheetIdPattern = Pattern.compile("^https://docs.google.com/spreadsheets/d/(?<sheetId>[-_a-zA-Z0-9]+)/.*$");

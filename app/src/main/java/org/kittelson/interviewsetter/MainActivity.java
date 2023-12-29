@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
@@ -67,8 +68,7 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
     private ProgressBar progressBar;
     private boolean agreedToLicense;
     private GeneralDatabase generalDatabase;
-    @Inject
-    LoadApptList loadApptList;
+    private MainViewModel mainViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +86,10 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
             generalData.observe(this, this);
             progressBar.setVisibility(ProgressBar.VISIBLE);
         }
+        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        mainViewModel.getAppointments().observe(this, this::setAppointmentList);
+        mainViewModel.getSpreadsheetException()
+                .observe(this, e -> appointmentListLoadFailed(e.getMessage()));
     }
 
     private void setupScreen() {
@@ -118,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
             startActivityForResult(googleSignInClient.getSignInIntent(), RC_SIGN_IN);
         } else {
             progressBar.setVisibility(ProgressBar.VISIBLE);
-            loadApptList.setContext(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
+            mainViewModel.loadAppointments(GoogleSignIn.getLastSignedInAccount(this).getAccount(), this, getViewState());
             new JobSchedulingManager().scheduleNextTextingJob(this);
         }
 //        ((Toolbar) findViewById(R.id.toolbar)).setTitle(viewState.toString());
@@ -133,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
             ((Toolbar) findViewById(R.id.my_toolbar)).setTitle(viewState.toString());
             progressBar.setVisibility(ProgressBar.VISIBLE);
             if (GoogleSignIn.getLastSignedInAccount(this) != null) {
-                loadApptList.setContext(this).execute(GoogleSignIn.getLastSignedInAccount(this).getAccount());
+                mainViewModel.loadAppointments(GoogleSignIn.getLastSignedInAccount(this).getAccount(), this, getViewState());
             } else {
                 startActivityForResult(googleSignInClient.getSignInIntent(), RC_SIGN_IN);
             }
@@ -171,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
         if (requestCode == RC_SIGN_IN) {
             try {
                 new JobSchedulingManager().scheduleNextTextingJob(this);
-                loadApptList.setContext(this).execute(GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class).getAccount());
+                mainViewModel.loadAppointments(GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class).getAccount(), this, getViewState());
             } catch (ApiException e) {
                 Log.w(CLASS_NAME, "signInResult: failed code=" + e.getStatusCode() + ", reason: " + GoogleSignInStatusCodes.getStatusCodeString(e.getStatusCode()), e);
                 progressBar.setVisibility(ProgressBar.INVISIBLE);

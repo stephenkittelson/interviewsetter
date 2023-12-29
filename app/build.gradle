@@ -36,6 +36,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.preference:preference:1.2.1'
+    implementation "androidx.lifecycle:lifecycle-viewmodel:2.6.2"
     implementation 'com.google.android.gms:play-services-auth:20.7.0'
     implementation 'com.google.http-client:google-http-client-jackson2:1.43.3'
     implementation('com.google.api-client:google-api-client-android:2.2.0') {

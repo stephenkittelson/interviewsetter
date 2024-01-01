@@ -44,7 +44,7 @@ public class MainViewModel extends ViewModel {
                 if (apptViewState.equals(ApptViewState.TentativeAppts)) {
                     appointments.postValue(appointmentsManager.getTentativeAppointments(account, context));
                 } else {
-                    appointments.postValue(appointmentsManager.getAppointmentsToConfirm(context));
+                    appointments.postValue(appointmentsManager.getAppointmentsToConfirm(account, context));
                 }
             } catch (IllegalArgumentException ex) {
                 spreadsheetException.postValue(ex);

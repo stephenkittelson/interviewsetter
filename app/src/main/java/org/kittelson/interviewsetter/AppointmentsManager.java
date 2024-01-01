@@ -43,14 +43,14 @@ public class AppointmentsManager {
                 && !appt.getStage().equals(AppointmentStage.Set), context);
     }
 
-    public List<Appointment> getAppointmentsToConfirm(Context context) throws UserRecoverableAuthIOException {
-        return getAppointments(GoogleSignIn.getLastSignedInAccount(context).getAccount(),
+    public List<Appointment> getAppointmentsToConfirm(Account account, Context context) throws UserRecoverableAuthIOException {
+        return getAppointments(account,
                 appt -> appt.getTime().isBefore(LocalDateTime.now().plusDays(1).withHour(23))
                         && appt.getStage().equals(AppointmentStage.Set),
                 context);
     }
 
-    public List<Appointment> getAppointments(Account account, Predicate<Appointment> filter, Context context) throws UserRecoverableAuthIOException {
+    private List<Appointment> getAppointments(Account account, Predicate<Appointment> filter, Context context) throws UserRecoverableAuthIOException {
         List<Appointment> appointments = new LinkedList<>();
         Matcher sheetIdMatcher;
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);

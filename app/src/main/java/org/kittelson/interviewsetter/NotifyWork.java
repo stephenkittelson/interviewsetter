@@ -9,16 +9,13 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 
 import org.kittelson.interviewsetter.appointments.Appointment;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -64,7 +61,7 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
         }
 
         try {
-            List<Appointment> appointmentsToConfirm = appointmentsManager.getAppointmentsToConfirm(context);
+            List<Appointment> appointmentsToConfirm = appointmentsManager.getAppointmentsToConfirm(GoogleSignIn.getLastSignedInAccount(context).getAccount(), context);
             if (appointmentsToConfirm.size() > 0) {
                 notify(CONFIRM_APPTS_NOTIFICATION, "Confirm appointments", "Confirm " + getEarliestDate(appointmentsToConfirm) + " appt");
                 notifiedUser = true;

@@ -53,8 +53,11 @@ dependencies {
     }
     implementation 'org.apache.commons:commons-lang3:3.8.1'
 
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation "com.google.dagger:hilt-android-testing:2.50"
+    testImplementation 'org.mockito:mockito-core:5.8.0'
+    androidTestImplementation 'org.mockito:mockito-android:5.8.0'
 //    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.room:room-runtime:2.6.1'

@@ -1,6 +1,7 @@
 package org.kittelson.interviewsetter2;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 
 import androidx.preference.PreferenceManager;
 
@@ -26,8 +27,11 @@ public class AppointmentsManagerTest {
 
     @Test
     public void givenUnspecifiedGoogleSheetsId_whenGetAppointments_thenReturnEmpty() {
-        // TODO how to change the preference programmatically?
-        PreferenceManager.setDefaultValues(context, R.string.googleSheetId_key, true);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+//        SharedPreferences.Editor editor = sharedPreferences.edit();
+//        editor.putString("googleSheetId_key", "TODO");
+//        editor.apply();
+        // TODO write unit test
     }
 
     /*
@@ -95,7 +99,9 @@ public class AppointmentsManagerTest {
     givenTomorrowWithTimeAfterCurrentTimeWithStageAtInitialContact_whenGetAppointmentsToConfirm_thenReturnEmpty
     givenTomorrowWithTimeBeforeCurrentTimeWithStageAtConfirmed_whenGetAppointmentsToConfirm_thenReturnAppointment
 
-test duplicate detection
-    given_whenGetAppointments_then
+    givenTwoApptsOneCommonPersonInFirstPosition_whenGetAppointments_thenMarkDuplicate
+    givenTwoApptsOneCommonPersonInSecondPosition_whenGetAppointments_thenMarkDuplicate
+    givenTwoApptsOneCommonPersonInThirdPosition_whenGetAppointments_thenMarkDuplicate
+    givenTwoApptsSameTypeNoCommonPerson_whenGetAppointments_thenNoDuplicates
      */
 }

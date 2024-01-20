@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -86,7 +87,7 @@ public class NotifyWork extends AsyncTask<Void, Void, Void> {
     private String getEarliestDate(List<Appointment> appointments) {
         LocalDateTime earliestAppointment = appointments.stream()
                 .filter(appt -> appt.getTime().isAfter(LocalDateTime.now()))
-                .sorted((appt1, appt2) -> appt1.getTime().compareTo(appt2.getTime())).findFirst().get().getTime();
+                .min(Comparator.comparing(Appointment::getTime)).get().getTime();
         String earliestDate;
         LocalDateTime endOfDayToday = LocalDateTime.now().plusDays(1L).truncatedTo(ChronoUnit.DAYS);
         LocalDateTime endOfDayTomorrow = LocalDateTime.now().plusDays(2L).truncatedTo(ChronoUnit.DAYS);

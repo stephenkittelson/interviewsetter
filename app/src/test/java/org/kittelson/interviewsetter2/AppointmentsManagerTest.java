@@ -13,6 +13,11 @@ import android.content.SharedPreferences;
 import androidx.preference.PreferenceManager;
 
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.services.sheets.v4.model.CellData;
+import com.google.api.services.sheets.v4.model.ExtendedValue;
+import com.google.api.services.sheets.v4.model.GridData;
+import com.google.api.services.sheets.v4.model.RowData;
+import com.google.api.services.sheets.v4.model.Sheet;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 
 import org.hamcrest.MatcherAssert;
@@ -27,6 +32,7 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Collections;
 import java.util.List;
 
 public class AppointmentsManagerTest {
@@ -57,42 +63,182 @@ public class AppointmentsManagerTest {
 
     @Test
     public void givenNullGoogleSheetId_whenGetAppointments_thenReturnEmpty() throws GeneralSecurityException, IOException {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("googleSheetId_key", "https://docs.google.com/spreadsheets/d/1Pu_1cGDWJd3BHgyOeu7M6dRGNZAd9U5ueTduf1BmrzI/edit?usp=sharing");
-        editor.apply();
+        when(sharedPreferences.contains(anyString())).thenReturn(true);
+        when(sharedPreferences.getString(any(), any())).thenReturn(null);
+
+        List<Appointment> results = appointmentsManager.getAppointmentsToConfirm(account, context);
+
+        MatcherAssert.assertThat("results should be empty for null google sheet ID",
+                results, Matchers.empty());
+    }
+
+    @Test
+    public void givenBlankGoogleSheetId_whenGetAppointments_thenReturnEmpty() throws GeneralSecurityException, IOException {
+        when(sharedPreferences.contains(anyString())).thenReturn(true);
+        when(sharedPreferences.getString(any(), any())).thenReturn(" \t \n \r ");
+
+        List<Appointment> results = appointmentsManager.getAppointmentsToConfirm(account, context);
+
+        MatcherAssert.assertThat("results should be empty for blank google sheet ID",
+                results, Matchers.empty());
+
+
+        // TODO write unit test
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void givenTooFewColumns_whenGetAppointments_thenThrowException() throws IOException, GeneralSecurityException {
+        setGoodGoogleSheetId();
         when(spreadsheetClient.getSpreadsheetData(any(), any(), anyString()))
                 .thenReturn(new Spreadsheet()
                         .setSheets(List.of(
-
+                                new Sheet().setData(List.of(new GridData().setRowData(List.of(new RowData().setValues(List.of(
+                                        new CellData().setEffectiveValue(new ExtendedValue().setNumberValue(12.0)),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setNumberValue(0.12))
+                                ))))))
                         )));
 
+        appointmentsManager.getAppointmentsToConfirm(account, context);
+        // TODO write unit test
     }
 
-    /*
+    private void setGoodGoogleSheetId() {
+        when(sharedPreferences.contains(anyString())).thenReturn(true);
+        when(sharedPreferences.getString(any(), any())).thenReturn("https://docs.google.com/spreadsheets/d/1Pu_1cGDWJd3BHgyOeu7M6dRGNZAd9U5ueTduf1BmrzI/edit?usp=sharing");
+//        editor.putString("googleSheetId_key", );
+    }
 
-    givenBlankGoogleSheetId_whenGetAppointments_thenReturnEmpty
-    givenTooFewColumns_whenGetAppointments_thenThrowException
-    givenZeroRows_whenGetAppointments_thenReturnEmpty
-    givenZeroColumns_whenGetAppointments_thenThrowException
-    givenNullDate_whenGetAppointments_thenReturnEmpty
-    givenBlankDate_whenGetAppointments_thenReturnEmpty
-    givenNullTime_whenGetAppointments_thenReturnEmpty
-    givenBlankTime_whenGetAppointments_thenReturnEmpty
-    givenNullPresidencyMember_whenGetAppointments_thenReturnEmpty
-    givenBlankPresidencyMember_whenGetAppointments_thenReturnEmpty
-    givenNullInterviewType_whenGetAppointments_thenReturnEmpty
-    givenNullCompanionship_whenGetAppointments_thenReturnEmpty
-    givenBlankCompanionship_whenGetAppointments_thenReturnEmpty
-    givenNullLocationAndNotFamilyVisit_whenGetAppointments_thenReturnEmpty
-    givenNullLocationForFamilyVisit_whenGetAppointments_thenReturnAppointment
-    givenBlankLocationAndNotFamilyVisit_whenGetAppointments_thenReturnEmpty
-    givenBlankLocationForFamilyVisit_whenGetAppointments_thenReturnAppointment
-    givenNullStage_whenGetAppointments_thenReturnEmpty
-    givenBlankStage_whenGetAppointments_thenReturnEmpty
-    givenInvalidCompanionship_whenGetAppointments_thenReturnEmpty
-    givenInvalidStage_whenGetAppointments_thenThrowException
+    @Test
+    public void givenZeroRows_whenGetAppointments_thenReturnEmpty() throws GeneralSecurityException, IOException {
+        when(spreadsheetClient.getSpreadsheetData(any(), any(), anyString()))
+                .thenReturn(new Spreadsheet()
+                        .setSheets(List.of(
+                                new Sheet().setData(List.of(new GridData().setRowData(Collections.emptyList())))
+                        )));
 
+        List<Appointment> results = appointmentsManager.getAppointmentsToConfirm(account, context);
+
+        MatcherAssert.assertThat("results should be empty when zero rows are returned",
+                results, Matchers.empty());
+        // TODO write unit test
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void givenZeroColumns_whenGetAppointments_thenThrowException() throws GeneralSecurityException, IOException {
+        when(spreadsheetClient.getSpreadsheetData(any(), any(), anyString()))
+                .thenReturn(new Spreadsheet()
+                        .setSheets(List.of(
+                                new Sheet().setData(List.of(new GridData().setRowData(List.of(new RowData().setValues(Collections.emptyList())))))
+                        )));
+
+        appointmentsManager.getAppointmentsToConfirm(account, context);
+        // TODO write unit test
+    }
+
+    @Test
+    public void givenNullDate_whenGetAppointments_thenReturnEmpty() throws GeneralSecurityException, IOException {
+        when(spreadsheetClient.getSpreadsheetData(any(), any(), anyString()))
+                .thenReturn(new Spreadsheet()
+                        .setSheets(List.of(
+                                new Sheet().setData(List.of(new GridData().setRowData(List.of(new RowData().setValues(List.of(
+                                        new CellData().setEffectiveValue(null),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setNumberValue(0.12)),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Young")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Lastington, Test1")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("outside of Bishop's office")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Initial Contact"))
+                                ))))))
+                        )));
+
+        List<Appointment> results = appointmentsManager.getAppointmentsToConfirm(account, context);
+
+        MatcherAssert.assertThat("results should be empty when the date is null", results,
+                Matchers.empty());
+        // TODO write unit test
+    }
+
+    @Test
+    public void givenBlankDate_whenGetAppointments_thenReturnEmpty() {
+        // TODO write unit test
+    }
+
+    @Test
+    public void givenNullTime_whenGetAppointments_thenReturnEmpty() {
+        // TODO write unit test
+    }
+
+    @Test
+    public void givenBlankTime_whenGetAppointments_thenReturnEmpty() {
+        // TODO write unit test
+    }
+
+    @Test
+    public void givenNullPresidencyMember_whenGetAppointments_thenReturnEmpty() {
+        // TODO write unit test
+    }
+
+    @Test
+    public void givenBlankPresidencyMember_whenGetAppointments_thenReturnEmpty() {
+        // TODO write unit test
+    }
+
+    @Test
+    public void givenNullInterviewType_whenGetAppointments_thenReturnEmpty() {
+        // TODO write unit test
+    }
+
+    @Test
+    public void givenNullCompanionship_whenGetAppointments_thenReturnEmpty() {
+        // TODO write unit test
+    }
+
+    @Test
+    public void givenBlankCompanionship_whenGetAppointments_thenReturnEmpty() {
+        // TODO write unit test
+    }
+
+    @Test
+    public void givenNullLocationAndNotFamilyVisit_whenGetAppointments_thenReturnEmpty() {
+        // TODO write unit test
+    }
+
+    @Test
+    public void givenNullLocationForFamilyVisit_whenGetAppointments_thenReturnAppointment() {
+        // TODO write unit test
+    }
+
+    @Test
+    public void givenBlankLocationAndNotFamilyVisit_whenGetAppointments_thenReturnEmpty() {
+        // TODO write unit test
+    }
+
+    @Test
+    public void givenBlankLocationForFamilyVisit_whenGetAppointments_thenReturnAppointment() {
+        // TODO write unit test
+    }
+
+    @Test
+    public void givenNullStage_whenGetAppointments_thenReturnEmpty() {
+        // TODO write unit test
+    }
+
+    @Test
+    public void givenBlankStage_whenGetAppointments_thenReturnEmpty() {
+        // TODO write unit test
+    }
+
+    @Test
+    public void givenInvalidCompanionship_whenGetAppointments_thenReturnEmpty() {
+        // TODO write unit test
+    }
+
+    @Test
+    public void givenInvalidStage_whenGetAppointments_thenThrowException() {
+        // TODO write unit test
+    }
+
+/*
     givenTodayWithTimeInPast_whenGetTentativeAppointments_thenReturnEmpty
     givenDateInPastWithTimeAfterCurrentTime_whenGetTentativeAppointments_thenReturnEmpty
     givenDateInPastWithTimeBeforeCurrentTime_whenGetTentativeAppointments_thenReturnEmpty

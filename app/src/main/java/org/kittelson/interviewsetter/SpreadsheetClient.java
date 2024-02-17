@@ -28,7 +28,7 @@ public class SpreadsheetClient {
     public SpreadsheetClient() {
     }
 
-    public Spreadsheet getSpreadsheetData(Account account, Context context, Matcher sheetIdMatcher) throws IOException, GeneralSecurityException {
+    public Spreadsheet getSpreadsheetData(Account account, Context context, String sheetId) throws IOException, GeneralSecurityException {
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(context, Collections.singleton(SPREADSHEETS_SCOPE));
         credential.setSelectedAccount(account);
         Sheets.Builder sheetsServiceBuilder = new Sheets.Builder(GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance(), credential)
@@ -44,7 +44,7 @@ public class SpreadsheetClient {
                     request.setIOExceptionHandler(new HttpBackOffIOExceptionHandler(new ExponentialBackOff.Builder().setMaxIntervalMillis(60_000).build()));
                 })
                 .build();
-        Spreadsheet response = sheetsService.spreadsheets().get(sheetIdMatcher.group("sheetId"))
+        Spreadsheet response = sheetsService.spreadsheets().get(sheetId)
                 .setRanges(Arrays.asList("'Upcoming Interviews'!A2:G100"))
                 .setFields("sheets.data.rowData.values.effectiveValue").execute();
         return response;

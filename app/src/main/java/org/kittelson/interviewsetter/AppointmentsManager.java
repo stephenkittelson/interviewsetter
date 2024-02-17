@@ -61,7 +61,8 @@ public class AppointmentsManager {
             return appointments;
         }
         try {
-            Spreadsheet response = spreadsheetClient.getSpreadsheetData(account, context, sheetIdMatcher);
+            Spreadsheet response = spreadsheetClient.getSpreadsheetData(
+                    account, context, sheetIdMatcher.group("sheetId"));
             List<Appointment> allAppointments = response.getSheets().stream()
                     .flatMap(sheet -> sheet.getData().stream()
                             .flatMap(gridData -> gridData.getRowData().stream()

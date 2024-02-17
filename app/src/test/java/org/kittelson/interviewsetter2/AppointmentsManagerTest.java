@@ -1,41 +1,76 @@
 package org.kittelson.interviewsetter2;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import android.accounts.Account;
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.preference.PreferenceManager;
 
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.services.sheets.v4.model.Spreadsheet;
+
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.kittelson.interviewsetter.AppointmentsManager;
 import org.kittelson.interviewsetter.R;
 import org.kittelson.interviewsetter.SpreadsheetClient;
+import org.kittelson.interviewsetter.appointments.Appointment;
 import org.mockito.Mockito;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.List;
 
 public class AppointmentsManagerTest {
 
     private SpreadsheetClient spreadsheetClient;
     private AppointmentsManager appointmentsManager;
+    private SharedPreferences sharedPreferences;
     private Context context;
+    private Account account;
 
     @Before
     public void setup() {
-        spreadsheetClient = Mockito.mock(SpreadsheetClient.class);
+        spreadsheetClient = mock(SpreadsheetClient.class);
         appointmentsManager = new AppointmentsManager(spreadsheetClient);
-        context = Mockito.mock(Context.class);
+        context = mock(Context.class);
+        account = mock(Account.class);
+        sharedPreferences = mock(SharedPreferences.class);
+        when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
     }
 
     @Test
-    public void givenUnspecifiedGoogleSheetsId_whenGetAppointments_thenReturnEmpty() {
+    public void givenUnspecifiedGoogleSheetsId_whenGetAppointments_thenReturnEmpty() throws IOException, GeneralSecurityException {
+        List<Appointment> results = appointmentsManager.getAppointmentsToConfirm(account, context);
+
+        MatcherAssert.assertThat("results should be empty for unspecified google sheet ID",
+                results, Matchers.empty());
+    }
+
+    @Test
+    public void givenNullGoogleSheetId_whenGetAppointments_thenReturnEmpty() throws GeneralSecurityException, IOException {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-//        SharedPreferences.Editor editor = sharedPreferences.edit();
-//        editor.putString("googleSheetId_key", "TODO");
-//        editor.apply();
-        // TODO write unit test
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("googleSheetId_key", "https://docs.google.com/spreadsheets/d/1Pu_1cGDWJd3BHgyOeu7M6dRGNZAd9U5ueTduf1BmrzI/edit?usp=sharing");
+        editor.apply();
+        when(spreadsheetClient.getSpreadsheetData(any(), any(), anyString()))
+                .thenReturn(new Spreadsheet()
+                        .setSheets(List.of(
+
+                        )));
+
     }
 
     /*
-    givenNullGoogleSheetId_whenGetAppointments_thenReturnEmpty
+
     givenBlankGoogleSheetId_whenGetAppointments_thenReturnEmpty
     givenTooFewColumns_whenGetAppointments_thenThrowException
     givenZeroRows_whenGetAppointments_thenReturnEmpty

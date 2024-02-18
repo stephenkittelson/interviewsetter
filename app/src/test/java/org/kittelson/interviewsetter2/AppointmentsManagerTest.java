@@ -28,10 +28,14 @@ import org.kittelson.interviewsetter.AppointmentsManager;
 import org.kittelson.interviewsetter.R;
 import org.kittelson.interviewsetter.SpreadsheetClient;
 import org.kittelson.interviewsetter.appointments.Appointment;
+import org.kittelson.interviewsetter.appointments.AppointmentStage;
+import org.kittelson.interviewsetter.appointments.AppointmentType;
 import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 
@@ -159,33 +163,151 @@ public class AppointmentsManagerTest {
     }
 
     @Test
-    public void givenBlankDate_whenGetAppointments_thenReturnEmpty() {
+    public void givenBlankDate_whenGetAppointments_thenReturnEmpty() throws GeneralSecurityException, IOException {
+        when(spreadsheetClient.getSpreadsheetData(any(), any(), anyString()))
+                .thenReturn(new Spreadsheet()
+                        .setSheets(List.of(
+                                new Sheet().setData(List.of(new GridData().setRowData(List.of(new RowData().setValues(List.of(
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setNumberValue(0.12)),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Young")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Lastington, Test1")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("outside of Bishop's office")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Initial Contact"))
+                                ))))))
+                        )));
+
+        List<Appointment> results = appointmentsManager.getAppointmentsToConfirm(account, context);
+
+        MatcherAssert.assertThat("results should be empty when the date is blank", results,
+                Matchers.empty());
+        // TODO write unit test
+    }
+
+    private double convertDateToNumber(LocalDate date) {
+        return (double) ChronoUnit.DAYS.between(LocalDate.of(1899, 12, 30), LocalDate.now());
+    }
+
+    @Test
+    public void givenNullTime_whenGetAppointments_thenReturnEmpty() throws GeneralSecurityException, IOException {
+        when(spreadsheetClient.getSpreadsheetData(any(), any(), anyString()))
+                .thenReturn(new Spreadsheet()
+                        .setSheets(List.of(
+                                new Sheet().setData(List.of(new GridData().setRowData(List.of(new RowData().setValues(List.of(
+                                        new CellData().setEffectiveValue(new ExtendedValue().setNumberValue(convertDateToNumber(LocalDate.now()))),
+                                        new CellData().setEffectiveValue(null),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Young")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Lastington, Test1")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("outside of Bishop's office")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Initial Contact"))
+                                ))))))
+                        )));
+
+        List<Appointment> results = appointmentsManager.getAppointmentsToConfirm(account, context);
+
+        MatcherAssert.assertThat("results should be empty when the time is null", results,
+                Matchers.empty());
         // TODO write unit test
     }
 
     @Test
-    public void givenNullTime_whenGetAppointments_thenReturnEmpty() {
+    public void givenBlankTime_whenGetAppointments_thenReturnEmpty() throws IOException, GeneralSecurityException {
+        when(spreadsheetClient.getSpreadsheetData(any(), any(), anyString()))
+                .thenReturn(new Spreadsheet()
+                        .setSheets(List.of(
+                                new Sheet().setData(List.of(new GridData().setRowData(List.of(new RowData().setValues(List.of(
+                                        new CellData().setEffectiveValue(new ExtendedValue().setNumberValue(convertDateToNumber(LocalDate.now()))),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Young")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Lastington, Test1")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("outside of Bishop's office")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Initial Contact"))
+                                ))))))
+                        )));
+
+        List<Appointment> results = appointmentsManager.getAppointmentsToConfirm(account, context);
+
+        MatcherAssert.assertThat("results should be empty when the time is blank", results,
+                Matchers.empty());
         // TODO write unit test
     }
 
     @Test
-    public void givenBlankTime_whenGetAppointments_thenReturnEmpty() {
+    public void givenNullPresidencyMember_whenGetAppointments_thenReturnEmpty() throws GeneralSecurityException, IOException {
+        when(spreadsheetClient.getSpreadsheetData(any(), any(), anyString()))
+                .thenReturn(new Spreadsheet()
+                        .setSheets(List.of(
+                                new Sheet().setData(List.of(new GridData().setRowData(List.of(new RowData().setValues(List.of(
+                                        new CellData().setEffectiveValue(new ExtendedValue().setNumberValue(convertDateToNumber(LocalDate.now().plusDays(1L)))),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setNumberValue(0.12)),
+                                        new CellData().setEffectiveValue(null),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Lastington, Test1")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("outside of Bishop's office")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Initial Contact"))
+                                ))))))
+                        )));
+
+        List<Appointment> results = appointmentsManager.getAppointmentsToConfirm(account, context);
+
+        MatcherAssert.assertThat("results should be empty when the presidency member is null", results,
+                Matchers.empty());
         // TODO write unit test
     }
 
     @Test
-    public void givenNullPresidencyMember_whenGetAppointments_thenReturnEmpty() {
+    public void givenBlankPresidencyMember_whenGetAppointments_thenReturnEmpty() throws GeneralSecurityException, IOException {
+        when(spreadsheetClient.getSpreadsheetData(any(), any(), anyString()))
+                .thenReturn(new Spreadsheet()
+                        .setSheets(List.of(
+                                new Sheet().setData(List.of(new GridData().setRowData(List.of(new RowData().setValues(List.of(
+                                        new CellData().setEffectiveValue(new ExtendedValue().setNumberValue(convertDateToNumber(LocalDate.now().plusDays(1L)))),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setNumberValue(0.12)),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("  \n \r \t ")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Lastington, Test1")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("outside of Bishop's office")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Initial Contact"))
+                                ))))))
+                        )));
+
+        List<Appointment> results = appointmentsManager.getAppointmentsToConfirm(account, context);
+
+        MatcherAssert.assertThat("results should be empty when the presidency member is blank", results,
+                Matchers.empty());
         // TODO write unit test
     }
 
     @Test
-    public void givenBlankPresidencyMember_whenGetAppointments_thenReturnEmpty() {
-        // TODO write unit test
-    }
+    public void givenNullInterviewType_whenGetAppointments_thenReturnMinisteringAppointment() throws GeneralSecurityException, IOException {
+        // TODO maybe just assume ministering interview
+        setGoodGoogleSheetId();
+        when(spreadsheetClient.getSpreadsheetData(any(), any(), anyString()))
+                .thenReturn(new Spreadsheet()
+                        .setSheets(List.of(
+                                new Sheet().setData(List.of(new GridData().setRowData(List.of(new RowData().setValues(List.of(
+                                        new CellData().setEffectiveValue(new ExtendedValue().setNumberValue(convertDateToNumber(LocalDate.now().plusDays(1L)))),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setNumberValue(0.12)),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Young")),
+                                        new CellData().setEffectiveValue(null),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Lastington, Test1")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("outside of Bishop's office")),
+                                        new CellData().setEffectiveValue(new ExtendedValue().setStringValue("Initial Contact"))
+                                ))))))
+                        )));
 
-    @Test
-    public void givenNullInterviewType_whenGetAppointments_thenReturnEmpty() {
-        // TODO write unit test
+        List<Appointment> results = appointmentsManager.getAppointmentsToConfirm(account, context);
+
+        MatcherAssert.assertThat("results should be appointment when the interview type is null", results,
+                Matchers.contains(Matchers.equalTo(new Appointment()
+                        .setCompanions("Lastington, Test1")
+                        .setAppointmentType(AppointmentType.Ministering)
+                        .setLocation("outside of Bishop's office")
+                        .setStage(AppointmentStage.InitialContact))));
+        // TODO write unit test - not working right
     }
 
     @Test

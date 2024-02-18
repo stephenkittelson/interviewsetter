@@ -106,8 +106,9 @@ public class Appointment {
         return appointmentType;
     }
 
-    public void setAppointmentType(AppointmentType appointmentType) {
+    public Appointment setAppointmentType(AppointmentType appointmentType) {
         this.appointmentType = appointmentType;
+        return this;
     }
 
     public Appointment setAppointmentType(String appointmentType) {

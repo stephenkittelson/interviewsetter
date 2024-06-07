@@ -87,10 +87,10 @@ public class AppointmentsManager {
 
             // validate rest of the sheet - mark duplicate appointments
             appointments = allAppointments.stream().peek(appt -> {
-                if (allAppointments.stream().filter(subAppt -> subAppt.getAppointmentType().equals(appt.getAppointmentType())
+                if (allAppointments.stream().anyMatch(subAppt -> subAppt.getAppointmentType().equals(appt.getAppointmentType())
                         && appt.getCompanions().containsAll(subAppt.getCompanions())
                         && subAppt.getCompanions().containsAll(appt.getCompanions())
-                        && !appt.getTime().equals(subAppt.getTime())).findAny().isPresent()) {
+                        && !appt.getTime().equals(subAppt.getTime()))) {
                     appt.setDuplicate(true);
                 }
             }).filter(filter).collect(Collectors.toList());

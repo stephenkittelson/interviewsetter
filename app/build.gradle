@@ -59,6 +59,7 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:5.8.0'
     testImplementation 'org.hamcrest:hamcrest:2.2'
     androidTestImplementation 'org.mockito:mockito-android:5.8.0'
+    testImplementation 'org.mockito:mockito-inline:4.0.0'
 //    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.room:room-runtime:2.6.1'

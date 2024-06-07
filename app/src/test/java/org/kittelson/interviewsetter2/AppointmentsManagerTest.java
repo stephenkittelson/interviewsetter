@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import android.accounts.Account;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.preference.PreferenceManager;
 
@@ -55,6 +56,7 @@ public class AppointmentsManagerTest {
         account = mock(Account.class);
         sharedPreferences = mock(SharedPreferences.class);
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
+        Mockito.mockStatic(Log.class);
     }
 
     @Test
@@ -67,7 +69,7 @@ public class AppointmentsManagerTest {
 
     @Test
     public void givenNullGoogleSheetId_whenGetAppointments_thenReturnEmpty() throws GeneralSecurityException, IOException {
-        when(sharedPreferences.contains(anyString())).thenReturn(true);
+        when(sharedPreferences.contains(any())).thenReturn(true);
         when(sharedPreferences.getString(any(), any())).thenReturn(null);
 
         List<Appointment> results = appointmentsManager.getAppointmentsToConfirm(account, context);
@@ -78,16 +80,13 @@ public class AppointmentsManagerTest {
 
     @Test
     public void givenBlankGoogleSheetId_whenGetAppointments_thenReturnEmpty() throws GeneralSecurityException, IOException {
-        when(sharedPreferences.contains(anyString())).thenReturn(true);
+        when(sharedPreferences.contains(any())).thenReturn(true);
         when(sharedPreferences.getString(any(), any())).thenReturn(" \t \n \r ");
 
         List<Appointment> results = appointmentsManager.getAppointmentsToConfirm(account, context);
 
         MatcherAssert.assertThat("results should be empty for blank google sheet ID",
                 results, Matchers.empty());
-
-
-        // TODO write unit test
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -103,17 +102,16 @@ public class AppointmentsManagerTest {
                         )));
 
         appointmentsManager.getAppointmentsToConfirm(account, context);
-        // TODO write unit test
     }
 
     private void setGoodGoogleSheetId() {
-        when(sharedPreferences.contains(anyString())).thenReturn(true);
+        when(sharedPreferences.contains(any())).thenReturn(true);
         when(sharedPreferences.getString(any(), any())).thenReturn("https://docs.google.com/spreadsheets/d/1Pu_1cGDWJd3BHgyOeu7M6dRGNZAd9U5ueTduf1BmrzI/edit?usp=sharing");
-//        editor.putString("googleSheetId_key", );
     }
 
     @Test
     public void givenZeroRows_whenGetAppointments_thenReturnEmpty() throws GeneralSecurityException, IOException {
+        setGoodGoogleSheetId();
         when(spreadsheetClient.getSpreadsheetData(any(), any(), anyString()))
                 .thenReturn(new Spreadsheet()
                         .setSheets(List.of(
@@ -124,23 +122,26 @@ public class AppointmentsManagerTest {
 
         MatcherAssert.assertThat("results should be empty when zero rows are returned",
                 results, Matchers.empty());
-        // TODO write unit test
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void givenZeroColumns_whenGetAppointments_thenThrowException() throws GeneralSecurityException, IOException {
+    @Test
+    public void givenZeroColumns_whenGetAppointments_thenReturnEmpty() throws GeneralSecurityException, IOException {
+        setGoodGoogleSheetId();
         when(spreadsheetClient.getSpreadsheetData(any(), any(), anyString()))
                 .thenReturn(new Spreadsheet()
                         .setSheets(List.of(
                                 new Sheet().setData(List.of(new GridData().setRowData(List.of(new RowData().setValues(Collections.emptyList())))))
                         )));
 
-        appointmentsManager.getAppointmentsToConfirm(account, context);
-        // TODO write unit test
+        List<Appointment> results = appointmentsManager.getAppointmentsToConfirm(account, context);
+
+        MatcherAssert.assertThat("results should be empty when zero rows are returned",
+                results, Matchers.empty());
     }
 
     @Test
     public void givenNullDate_whenGetAppointments_thenReturnEmpty() throws GeneralSecurityException, IOException {
+        setGoodGoogleSheetId();
         when(spreadsheetClient.getSpreadsheetData(any(), any(), anyString()))
                 .thenReturn(new Spreadsheet()
                         .setSheets(List.of(
@@ -159,11 +160,12 @@ public class AppointmentsManagerTest {
 
         MatcherAssert.assertThat("results should be empty when the date is null", results,
                 Matchers.empty());
-        // TODO write unit test
     }
 
     @Test
     public void givenBlankDate_whenGetAppointments_thenReturnEmpty() throws GeneralSecurityException, IOException {
+        // TODO continue here - this test exposed a bug if the date is not a number type
+        setGoodGoogleSheetId();
         when(spreadsheetClient.getSpreadsheetData(any(), any(), anyString()))
                 .thenReturn(new Spreadsheet()
                         .setSheets(List.of(

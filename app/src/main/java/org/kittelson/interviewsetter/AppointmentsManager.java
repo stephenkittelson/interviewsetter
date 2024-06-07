@@ -17,6 +17,7 @@ import org.kittelson.interviewsetter.appointments.Appointment;
 import org.kittelson.interviewsetter.appointments.AppointmentStage;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -31,6 +32,26 @@ public class AppointmentsManager {
     private static Pattern spreadsheetIdPattern = Pattern.compile("^https://docs.google.com/spreadsheets/d/(?<sheetId>[-_a-zA-Z0-9]+)/.*$");
 
     private SpreadsheetClient spreadsheetClient;
+
+    private enum Columns {
+        Date(0),
+        Time(1),
+        PresidencyMember(2),
+        InterviewType(3),
+        Names(4),
+        Location(5),
+        Stage(6);
+
+        private int index;
+        // TODO expand this or something to add column validation, especially for numbers
+        private Columns(int index) {
+            this.index = index;
+        }
+
+        public int getIndex() {
+            return this.index;
+        }
+    }
 
     @Inject
     public AppointmentsManager(SpreadsheetClient spreadsheetClient) {
@@ -66,22 +87,25 @@ public class AppointmentsManager {
             List<Appointment> allAppointments = response.getSheets().stream()
                     .flatMap(sheet -> sheet.getData().stream()
                             .flatMap(gridData -> gridData.getRowData().stream()
-                                    .filter(rowData -> rowData.getValues() != null && rowData.getValues().size() >= 7)
-                                    .filter(rowData -> {
-                                        for (int i = 0; i < 7; i++) {
-                                            if (i != 3 && (rowData.getValues().get(i) == null || rowData.getValues().get(i).getEffectiveValue() == null)) {
-                                                return false;
-                                            }
-                                        }
-                                        return true;
-                                    })
+                                    .filter(rowData -> rowData.getValues() != null
+                                            && rowData.getValues().size() >= Columns.values().length)
+                                    .filter(rowData ->
+                                        Arrays.stream(Columns.values()).noneMatch(column ->
+                                                column.getIndex() != Columns.InterviewType.getIndex()
+                                                && (rowData.getValues().get(column.getIndex()) == null
+                                                        || rowData.getValues().get(column.getIndex()).getEffectiveValue() == null)
+                                        )
+                                    )
                                     .map(rowData -> new Appointment()
-                                            .setTime(rowData.getValues().get(0).getEffectiveValue().getNumberValue() + rowData.getValues().get(1).getEffectiveValue().getNumberValue())
-                                            .setPresidencyMember(rowData.getValues().get(2).getEffectiveValue().getStringValue())
-                                            .setAppointmentType(rowData.getValues().get(3).getEffectiveValue() != null ? rowData.getValues().get(3).getEffectiveValue().getStringValue() : "Ministering")
-                                            .setCompanions(rowData.getValues().get(4).getEffectiveValue().getStringValue())
-                                            .setLocation(rowData.getValues().get(5).getEffectiveValue().getStringValue())
-                                            .setStage(rowData.getValues().get(6).getEffectiveValue().getStringValue())
+                                            .setTime(rowData.getValues().get(Columns.Date.getIndex()).getEffectiveValue().getNumberValue()
+                                                    + rowData.getValues().get(Columns.Time.getIndex()).getEffectiveValue().getNumberValue())
+                                            .setPresidencyMember(rowData.getValues().get(Columns.PresidencyMember.getIndex()).getEffectiveValue().getStringValue())
+                                            .setAppointmentType(rowData.getValues().get(Columns.InterviewType.getIndex()).getEffectiveValue() != null
+                                                    ? rowData.getValues().get(Columns.InterviewType.getIndex()).getEffectiveValue().getStringValue()
+                                                    : "Ministering")
+                                            .setCompanions(rowData.getValues().get(Columns.Names.getIndex()).getEffectiveValue().getStringValue())
+                                            .setLocation(rowData.getValues().get(Columns.Location.getIndex()).getEffectiveValue().getStringValue())
+                                            .setStage(rowData.getValues().get(Columns.Stage.getIndex()).getEffectiveValue().getStringValue())
                                     )
                             )).collect(Collectors.toList());
 

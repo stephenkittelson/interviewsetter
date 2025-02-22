@@ -7,9 +7,10 @@ import android.util.Log;
 
 import androidx.preference.PreferenceManager;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.services.sheets.v4.model.CellData;
+import com.google.api.services.sheets.v4.model.ExtendedValue;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,23 +36,47 @@ public class AppointmentsManager {
 
     private SpreadsheetClient spreadsheetClient;
 
+    private static final Function<CellData, Boolean> GENERAL_VALIDATOR = value -> value != null && value.getEffectiveValue() != null;
+    private static final Function<CellData, Boolean> NUMBER_VALIDATOR = value -> GENERAL_VALIDATOR.apply(value) && value.getEffectiveValue().getNumberValue() != null;
+    private static final Function<CellData, Boolean> STRING_VALIDATOR = value -> GENERAL_VALIDATOR.apply(value) && value.getEffectiveValue().getStringValue() != null;
+
     private enum Columns {
-        Date(0),
-        Time(1),
-        PresidencyMember(2),
-        InterviewType(3),
-        Names(4),
-        Location(5),
-        Stage(6);
+        Date(0, NUMBER_VALIDATOR),
+        Time(1, NUMBER_VALIDATOR),
+        PresidencyMember(2, STRING_VALIDATOR),
+        InterviewType(3, value -> true),
+        Names(4, STRING_VALIDATOR),
+        Location(5, STRING_VALIDATOR),
+        Stage(6, STRING_VALIDATOR);
 
         private int index;
+        private final Function<CellData, Boolean> hasUsableValue;
+
         // TODO expand this or something to add column validation, especially for numbers
-        private Columns(int index) {
+        private Columns(int index, Function<CellData, Boolean> hasUsableValue) {
             this.index = index;
+            this.hasUsableValue = hasUsableValue;
         }
 
         public int getIndex() {
             return this.index;
+        }
+
+        public Boolean hasUsableValue(CellData value) {
+            return this.hasUsableValue.apply(value);
+        }
+
+        public static Columns getColumn(int index) {
+            return switch (index) {
+                case 0 -> Date;
+                case 1 -> Time;
+                case 2 -> PresidencyMember;
+                case 3 -> InterviewType;
+                case 4 -> Names;
+                case 5 -> Location;
+                case 6 -> Stage;
+                default -> throw new IllegalArgumentException("unknown column index");
+            };
         }
     }
 
@@ -90,11 +117,8 @@ public class AppointmentsManager {
                                     .filter(rowData -> rowData.getValues() != null
                                             && rowData.getValues().size() >= Columns.values().length)
                                     .filter(rowData ->
-                                        Arrays.stream(Columns.values()).noneMatch(column ->
-                                                column.getIndex() != Columns.InterviewType.getIndex()
-                                                && (rowData.getValues().get(column.getIndex()) == null
-                                                        || rowData.getValues().get(column.getIndex()).getEffectiveValue() == null)
-                                        )
+                                        Arrays.stream(Columns.values()).allMatch(column ->
+                                                column.hasUsableValue(rowData.getValues().get(column.getIndex())))
                                     )
                                     .map(rowData -> new Appointment()
                                             .setTime(rowData.getValues().get(Columns.Date.getIndex()).getEffectiveValue().getNumberValue()

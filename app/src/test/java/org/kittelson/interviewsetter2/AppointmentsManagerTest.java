@@ -24,6 +24,7 @@ import com.google.api.services.sheets.v4.model.Spreadsheet;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kittelson.interviewsetter.AppointmentsManager;
 import org.kittelson.interviewsetter.R;
@@ -48,6 +49,11 @@ public class AppointmentsManagerTest {
     private Context context;
     private Account account;
 
+    @BeforeClass
+    public static void beforeClass() {
+        Mockito.mockStatic(Log.class);
+    }
+
     @Before
     public void setup() {
         spreadsheetClient = mock(SpreadsheetClient.class);
@@ -56,7 +62,6 @@ public class AppointmentsManagerTest {
         account = mock(Account.class);
         sharedPreferences = mock(SharedPreferences.class);
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
-        Mockito.mockStatic(Log.class);
     }
 
     @Test
@@ -89,8 +94,8 @@ public class AppointmentsManagerTest {
                 results, Matchers.empty());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void givenTooFewColumns_whenGetAppointments_thenThrowException() throws IOException, GeneralSecurityException {
+    @Test
+    public void givenTooFewColumns_whenGetAppointments_thenReturnEmpty() throws IOException, GeneralSecurityException {
         setGoodGoogleSheetId();
         when(spreadsheetClient.getSpreadsheetData(any(), any(), anyString()))
                 .thenReturn(new Spreadsheet()
@@ -101,7 +106,10 @@ public class AppointmentsManagerTest {
                                 ))))))
                         )));
 
-        appointmentsManager.getAppointmentsToConfirm(account, context);
+        List<Appointment> results = appointmentsManager.getAppointmentsToConfirm(account, context);
+
+        MatcherAssert.assertThat("results should be empty for too few columns",
+                results, Matchers.empty());
     }
 
     private void setGoodGoogleSheetId() {

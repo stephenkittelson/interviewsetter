@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowInsets;
 import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -93,6 +94,19 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
     private void setupScreen() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
+        // Ensure the toolbar (and its action icons) is laid out below the status bar/cutout area.
+        // This prevents the settings gear icon from being visually/touchably buried under the system bars.
+        toolbar.setOnApplyWindowInsetsListener((v, insets) -> {
+            int statusBarTopInset = insets != null ? insets.getSystemWindowInsetTop() : 0;
+            int left = v.getPaddingLeft();
+            int right = v.getPaddingRight();
+            int bottom = v.getPaddingBottom();
+            if (v.getPaddingTop() != statusBarTopInset) {
+                v.setPadding(left, statusBarTopInset, right, bottom);
+            }
+            return insets;
+        });
+        toolbar.requestApplyInsets();
 
         viewState = ApptViewState.TentativeAppts;
         appointmentView = (RecyclerView) findViewById(R.id.recycler_view);

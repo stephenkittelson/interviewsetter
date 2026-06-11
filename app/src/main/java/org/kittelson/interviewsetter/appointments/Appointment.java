@@ -48,9 +48,11 @@ public class Appointment {
         return this;
     }
 
-    private static Pattern twoCompanionPattern = Pattern.compile("^ *~? *(\\S+) *, *(\\S+) */ *~? *(\\S+) *, *(\\S+)");
-    private static Pattern oneCompanionPattern = Pattern.compile("^ *~? *(\\S+) *, *(\\S+)");
-    private static Pattern familyPattern = Pattern.compile("^ *~? *(\\S+) *, *(\\S+) *& *(\\S+)");
+    // Patterns support compound last names (e.g. "De La Cruz") and compound first names.
+    // Last name: everything before the comma (trimmed). First name: everything before / & or end (trimmed).
+    private static Pattern twoCompanionPattern = Pattern.compile("^ *~? *([^,]+?) *, *([^/]+?) */ *~? *([^,]+?) *, *([^/~]+?) *$");
+    private static Pattern oneCompanionPattern = Pattern.compile("^ *~? *([^,]+?) *, *([^/&]+?) *$");
+    private static Pattern familyPattern = Pattern.compile("^ *~? *([^,]+?) *, *([^/&]+?) *& *([^/&]+?) *$");
 
     public Appointment setCompanions(String companions) {
         Matcher familyMatcher = familyPattern.matcher(companions);
@@ -58,12 +60,12 @@ public class Appointment {
         Matcher oneCompanionMatcher = oneCompanionPattern.matcher(companions);
         this.companions = new ArrayList<>();
         if (familyMatcher.find()) {
-            this.companions.add(familyMatcher.group(2) + " " + familyMatcher.group(1));
+            this.companions.add(familyMatcher.group(2).trim() + " " + familyMatcher.group(1).trim());
         } else if (twoCompanionMatcher.find()) {
-            this.companions.add(twoCompanionMatcher.group(2) + " " + twoCompanionMatcher.group(1));
-            this.companions.add(twoCompanionMatcher.group(4) + " " + twoCompanionMatcher.group(3));
+            this.companions.add(twoCompanionMatcher.group(2).trim() + " " + twoCompanionMatcher.group(1).trim());
+            this.companions.add(twoCompanionMatcher.group(4).trim() + " " + twoCompanionMatcher.group(3).trim());
         } else if (oneCompanionMatcher.find()) {
-            this.companions.add(oneCompanionMatcher.group(2) + " " + oneCompanionMatcher.group(1));
+            this.companions.add(oneCompanionMatcher.group(2).trim() + " " + oneCompanionMatcher.group(1).trim());
         } else {
             // unknown companion format - skipping
         }

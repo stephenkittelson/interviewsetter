@@ -12,7 +12,7 @@ public enum ApptViewState {
                 str = "Appts to Confirm";
                 break;
             case TentativeAppts:
-                str = "Tentative Appts";
+                str = "Appts to Set";
                 break;
             default:
                 str = "Unknown";

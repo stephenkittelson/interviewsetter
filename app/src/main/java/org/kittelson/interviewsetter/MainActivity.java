@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.WindowInsets;
 import android.widget.ProgressBar;
 
@@ -31,7 +30,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.util.CollectionUtils;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.tabs.TabLayout;
 
 import org.kittelson.interviewsetter.appointments.Appointment;
 import org.kittelson.interviewsetter.appointments.view.AppointmentAdapter;
@@ -139,19 +138,33 @@ public class MainActivity extends AppCompatActivity implements Observer<GeneralD
         }
 //        ((Toolbar) findViewById(R.id.toolbar)).setTitle(viewState.toString());
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener((View view) -> {
-            if (viewState.equals(ApptViewState.TentativeAppts)) {
-                viewState = ApptViewState.ApptsToConfirm;
-            } else {
-                viewState = ApptViewState.TentativeAppts;
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        tabLayout.addTab(tabLayout.newTab().setText(ApptViewState.TentativeAppts.toString()));
+        tabLayout.addTab(tabLayout.newTab().setText(ApptViewState.ApptsToConfirm.toString()));
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                ApptViewState newViewState = tab.getPosition() == 0
+                        ? ApptViewState.TentativeAppts
+                        : ApptViewState.ApptsToConfirm;
+                if (newViewState.equals(viewState)) {
+                    return;
+                }
+                viewState = newViewState;
+                progressBar.setVisibility(ProgressBar.VISIBLE);
+                if (GoogleSignIn.getLastSignedInAccount(MainActivity.this) != null) {
+                    mainViewModel.loadAppointments(GoogleSignIn.getLastSignedInAccount(MainActivity.this).getAccount(), MainActivity.this, getViewState());
+                } else {
+                    startActivityForResult(googleSignInClient.getSignInIntent(), RC_SIGN_IN);
+                }
             }
-            ((Toolbar) findViewById(R.id.my_toolbar)).setTitle(viewState.toString());
-            progressBar.setVisibility(ProgressBar.VISIBLE);
-            if (GoogleSignIn.getLastSignedInAccount(this) != null) {
-                mainViewModel.loadAppointments(GoogleSignIn.getLastSignedInAccount(this).getAccount(), this, getViewState());
-            } else {
-                startActivityForResult(googleSignInClient.getSignInIntent(), RC_SIGN_IN);
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
             }
         });
     }

@@ -16,19 +16,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/recycler_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/my_toolbar" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        app:backgroundTint="@color/colorAccent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/ic_menu_rotate" />
+        app:layout_constraintTop_toBottomOf="@+id/tab_layout" />
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/my_toolbar"
@@ -43,6 +31,20 @@
         app:layout_constraintTop_toTopOf="parent"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        app:tabGravity="fill"
+        app:tabMode="fixed"
+        app:tabTextColor="@android:color/white"
+        app:tabSelectedTextColor="@android:color/white"
+        app:tabIndicatorColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/my_toolbar" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
@@ -55,6 +57,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/my_toolbar" />
+        app:layout_constraintTop_toBottomOf="@id/tab_layout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

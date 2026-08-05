@@ -51,9 +51,12 @@ public class Appointment {
     // Patterns support compound last names (e.g. "De La Cruz") and compound first names.
     // Last name: everything before the comma (trimmed). First name: everything before / & or end
     // (trimmed). A trailing "(...)" note, e.g. "Doe, John (running late)", is allowed and ignored.
-    private static Pattern twoCompanionPattern = Pattern.compile("^ *~? *([^,]+?) *, *([^/]+?) */ *~? *([^,]+?) *, *([^/~(]+?) *(?:\\(.*\\))? *$");
-    private static Pattern oneCompanionPattern = Pattern.compile("^ *~? *([^,]+?) *, *([^/&(]+?) *(?:\\(.*\\))? *$");
-    private static Pattern familyPattern = Pattern.compile("^ *~? *([^,]+?) *, *([^/&(]+?) *& *([^/&(]+?) *(?:\\(.*\\))? *$");
+    // Name segments can't contain a comma, ampersand, slash, or backslash - those are reserved as
+    // separators, so a row that includes one (e.g. a stray typo'd "\" instead of "/") is correctly
+    // treated as unparseable rather than silently swallowed into a garbled name.
+    private static Pattern twoCompanionPattern = Pattern.compile("^ *~? *([^,/&\\\\]+?) *, *([^,/&\\\\]+?) */ *~? *([^,/&\\\\]+?) *, *([^,/&(\\\\]+?) *(?:\\(.*\\))? *$");
+    private static Pattern oneCompanionPattern = Pattern.compile("^ *~? *([^,/&\\\\]+?) *, *([^,/&(\\\\]+?) *(?:\\(.*\\))? *$");
+    private static Pattern familyPattern = Pattern.compile("^ *~? *([^,/&\\\\]+?) *, *([^,/&(\\\\]+?) *& *([^,/&(\\\\]+?) *(?:\\(.*\\))? *$");
 
     public Appointment setCompanions(String companions) {
         Matcher familyMatcher = familyPattern.matcher(companions);

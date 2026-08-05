@@ -61,4 +61,32 @@ public class AppointmentTest {
         Assert.assertTrue(appt.getCompanions().contains("Maria De La Cruz"));
         Assert.assertTrue(appt.getCompanions().contains("Juan Garcia Lopez"));
     }
+
+    @Test
+    public void trailingParentheticalNote_twoCompanions_ignoredAndParsed() throws Exception {
+        Appointment appt = new Appointment().setCompanions("Lastington, Test1 / Lastington, Test2 (extra text ignored)");
+        Assert.assertEquals(2, appt.getCompanions().size());
+        Assert.assertTrue(appt.getCompanions().contains("Test1 Lastington"));
+        Assert.assertTrue(appt.getCompanions().contains("Test2 Lastington"));
+    }
+
+    @Test
+    public void trailingParentheticalNote_oneCompanion_ignoredAndParsed() throws Exception {
+        Appointment appt = new Appointment().setCompanions("Doe, John (running late)");
+        Assert.assertEquals(1, appt.getCompanions().size());
+        Assert.assertTrue(appt.getCompanions().contains("John Doe"));
+    }
+
+    @Test
+    public void backslashInsteadOfSlash_notParsed() throws Exception {
+        // real-world typo from a test sheet: "\" used instead of "/" between companions
+        Appointment appt = new Appointment().setCompanions("Parker, Robbie \\ Taylor, Benji (yep, both of them)");
+        Assert.assertTrue(appt.getCompanions().isEmpty());
+    }
+
+    @Test
+    public void missingComma_notParsed() throws Exception {
+        Appointment appt = new Appointment().setCompanions("Test1 Lastington");
+        Assert.assertTrue(appt.getCompanions().isEmpty());
+    }
 }

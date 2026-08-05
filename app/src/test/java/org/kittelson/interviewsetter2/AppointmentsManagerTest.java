@@ -56,6 +56,11 @@ import java.util.List;
  *     <li>{@code givenTwoApptsOneCommonPersonInThirdPosition_...} - the app only ever parses one or
  *     two companions out of a cell (see {@link Appointment#setCompanions(String)}), so there's no
  *     real "third position" to exercise. Implemented as the single-companion case instead.</li>
+ *     <li>{@code givenDateInTwoDaysWithStageAtInitialContact_whenGetTentativeAppointments_...} was
+ *     listed as "thenReturnEmpty". Checked against a real "Appts to Set" test sheet and confirmed
+ *     that's wrong: "Appts to Set" means "hasn't been Set yet", so InitialContact/AwaitingReply
+ *     belong on it the same as TentativelySet - only Set/Confirmed are excluded. Fixed to
+ *     "thenReturnAppointment" below.</li>
  * </ul>
  */
 public class AppointmentsManagerTest {
@@ -353,8 +358,13 @@ public class AppointmentsManagerTest {
     }
 
     @Test
-    public void givenDateInTwoDaysWithStageAtInitialContact_whenGetTentativeAppointments_thenReturnEmpty() throws Exception {
-        assertEmptyForTentative(tentativeRow().date(serialFor(LocalDateTime.now().plusDays(2))).stage("Initial Contact"));
+    public void givenDateInTwoDaysWithStageAtInitialContact_whenGetTentativeAppointments_thenReturnAppointment() throws Exception {
+        assertAppointmentForTentative(tentativeRow().date(serialFor(LocalDateTime.now().plusDays(2))).stage("Initial Contact"));
+    }
+
+    @Test
+    public void givenDateInTwoDaysWithStageAtAwaitingReply_whenGetTentativeAppointments_thenReturnAppointment() throws Exception {
+        assertAppointmentForTentative(tentativeRow().date(serialFor(LocalDateTime.now().plusDays(2))).stage("Awaiting Reply"));
     }
 
     @Test

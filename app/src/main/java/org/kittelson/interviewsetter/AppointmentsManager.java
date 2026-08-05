@@ -52,14 +52,15 @@ public class AppointmentsManager {
         this.spreadsheetClient = spreadsheetClient;
     }
 
-    // "Tentative" appointments are ones the elders quorum presidency has proposed (stage =
-    // TentativelySet) but hasn't locked in yet. Only those, within the next week, are worth
-    // surfacing here - anything already Set/Confirmed belongs on the "to confirm" list instead,
-    // and anything that's already passed is no longer actionable.
+    // "Appts to Set" are appointments that haven't been Set yet - InitialContact, AwaitingReply,
+    // or TentativelySet - and are coming up within the next week. Anything already Set/Confirmed
+    // belongs on the "to confirm" list instead, and anything that's already passed is no longer
+    // actionable.
     public List<Appointment> getTentativeAppointments(Account account, Context context) throws UserRecoverableAuthIOException {
         return getAppointments(account, appt -> appt.getTime().isAfter(LocalDateTime.now())
                 && appt.getTime().isBefore(LocalDateTime.now().plusDays(7))
-                && appt.getStage().equals(AppointmentStage.TentativelySet), context);
+                && !appt.getStage().equals(AppointmentStage.Set)
+                && !appt.getStage().equals(AppointmentStage.Confirmed), context);
     }
 
     // "Appointments to confirm" are ones that have been Set and are coming up within the next
